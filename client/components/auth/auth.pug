@@ -1,0 +1,15 @@
+link(rel='stylesheet' href='/components/auth/auth.css')
+script(src='/components/auth/auth.js')
+
+.auth
+  .authContainer
+    .authLabelContainer
+      .authLabel Valoria
+    .authErrorContainer
+      .authError Incorrect Username or Password
+    .authForm
+      input.authUsername(placeholder="Username")
+      input.authPassword(placeholder="Password" type='password')
+    .authBtns
+      .authLogin(onClick="loginUser()") Login
+      .authRegister(onClick="registerUser()") Register
