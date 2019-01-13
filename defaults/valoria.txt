@@ -1,0 +1,19 @@
+/* So this is how we load valoria.
+This is it. We're fetching all the things
+in the dimension and using their
+idea code to bring them to the dimension.*/
+
+axios.get('/dimension/valoria').then((dimensionRes) => {
+  let things = dimensionRes.data.things;
+  let dimension = dimensionRes.data;
+  things.forEach((thingKey) => {
+    axios.get('/dimension/valoria/thing/' + thingKey).then((thingRes) => {
+      let thingKind = thingRes.data.kind;
+      let thingContent = thingRes.data.content;
+      axios.get('/dimension/valoria/idea/' + thingKind).then((ideaRes) => {
+        let ideaContent = ideaRes.data.content
+        eval(ideaContent);
+      })
+    })
+  })
+})
