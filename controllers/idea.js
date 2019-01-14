@@ -1,6 +1,17 @@
 const Idea = require('../models/idea');
 const Dimension = require('../models/dimension');
 
+const fs = require('fs');
+let defaultValoria;
+let defaultCode;
+
+fs.readFile('./defaults/valoria.txt', 'utf8', (err, content) => {
+  defaultValoria = content;
+  fs.readFile('./defaults/code.txt', 'utf8', (err, content) => {
+    defaultCode = content;
+  })
+})
+
 module.exports = (app) => {
 
   app.post('/dimension/:key/idea/:kind/save', (req, res) => {
@@ -51,6 +62,15 @@ module.exports = (app) => {
   app.get('/dimension/:key/idea/:kind', (req, res) => {
     Idea.findOne({kind : req.params.kind, dimension : req.params.key}).then((idea) => {
       if(idea){
+        //Retrieve Default Code if shit hits the fan
+        if(!idea.content){
+          if(idea.kind == 'valoria'){
+            idea.content = defaultValoria;
+          }else if(idea.kind == 'code'){
+            idea.content = defaultCode;
+          }
+          idea.save();
+        }
         res.send(idea);
       }else{
         res.send({err : "Idea does not exist in this dimension"})

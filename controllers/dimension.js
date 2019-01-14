@@ -58,6 +58,9 @@ module.exports = (app) => {
         if(!dimension){
           res.send({err : 'No dimension found'});
         }else{
+          if(dimension.content == '' && dimension.key == 'valoria'){
+            dimension.content = defaultValoria;
+          }
           res.send(dimension);
         }
       }

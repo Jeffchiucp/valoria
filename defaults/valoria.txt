@@ -3,6 +3,22 @@ This is it. We're fetching all the things
 in the dimension and using their
 idea code to bring them to the dimension.*/
 
+let valoria = document.createElement('div');
+valoria.classList.add('valoria');
+valoria.tabIndex = 1;
+$(valoria).css({
+  width : "100%",
+  height : "100%",
+  position : "absolute",
+  display : "flex",
+  justifyContent : "center",
+  alignItems : "center",
+  zIndex : 0,
+  backgroundColor : "#000000"
+})
+$('body').append(valoria);
+
+
 axios.get('/dimension/valoria').then((dimensionRes) => {
   let things = dimensionRes.data.things;
   let dimension = dimensionRes.data;
