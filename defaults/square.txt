@@ -1,0 +1,30 @@
+let square = document.createElement('div');
+square.classList.add('square');
+square.id = thingKey
+$(square).css({
+  width : "100px",
+  height : "100px",
+  backgroundColor : "#5fa87e",
+  position : "absolute",
+  top : "100px",
+  left : "100px",
+  zIndex : "1",
+  border : "2px solid #fffda0",
+  display : "flex",
+  flexDirection : "column",
+  justifyContent : "center",
+  alignItems : "center"
+})
+$(square).draggable();
+$(square).resizable()
+$(valoria).append(square);
+
+
+//Only interact on the square itself.
+$(square).on('mousedown', (e) => {
+  if(!e.target.className.includes('square')){
+    $(square).draggable('disable');
+  }else{
+    $(square).draggable('enable');
+  }
+})

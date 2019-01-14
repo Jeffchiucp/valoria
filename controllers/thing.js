@@ -4,6 +4,28 @@ const Dimension = require('../models/dimension');
 
 module.exports = (app) => {
 
+  app.post('/dimension/:key/thing/new', (req, res) => {
+    Dimension.findOne({key : req.params.key}).then((dimension) => {
+      if(!dimension){
+        res.send({err : "Dimension does not exist"});
+      }else{
+        let newThing = new Thing();
+        newThing.kind = req.body.kind;
+        newThing.content = req.body.content;
+        newThing.key = req.body.kind + dimension.thingCount;
+        newThing.creator = req.user.username;
+        newThing.dimension = dimension.key;
+        newThing.save().then((newThing) => {
+          dimension.things.push(newThing.key);
+          dimension.thingCount += 1;
+          dimension.save().then((dimension) => {
+            res.send(newThing);
+          })
+        })
+      }
+    })
+  })
+
   app.get('/dimension/:key/thing/:thingKey', (req, res) => {
     Dimension.findOne({key : req.params.key}).then((dimension) => {
       if(!dimension){

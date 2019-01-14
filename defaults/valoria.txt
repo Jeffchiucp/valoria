@@ -14,6 +14,7 @@ $(valoria).css({
   justifyContent : "center",
   alignItems : "center",
   zIndex : 0,
+  background : "url('https://i.imgur.com/TbwEvfU.png')",
   backgroundColor : "#000000"
 })
 $('body').append(valoria);

@@ -6,6 +6,7 @@ const DimensionSchema = new Schema({
   creator : {type : String, default : 'James'},
   ideas : Array,
   things : Array,
+  thingCount : {default : 0, type : Number},
   content : String
 });
 

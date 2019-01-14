@@ -5,11 +5,15 @@ const Thing = require('../models/thing');
 const fs = require('fs');
 let defaultValoria;
 let defaultCode;
+let defaultSquare;
 
 fs.readFile('./defaults/valoria.txt', 'utf8', (err, content) => {
   defaultValoria = content;
   fs.readFile('./defaults/code.txt', 'utf8', (err, content) => {
     defaultCode = content;
+    fs.readFile('./defaults/square.txt', 'utf8', (err, content) => {
+      defaultSquare = content;
+    })
   })
 })
 
@@ -22,6 +26,7 @@ module.exports = (app) => {
         let valoria = new Dimension();
         valoria.key = 'valoria';
         valoria.creator = 'james';
+        valoria.thingCount = 1;
         valoria.content = defaultValoria;
         //Create Valoria Idea
         valoria.ideas.push('valoria');
@@ -31,25 +36,34 @@ module.exports = (app) => {
         valoriaIdea.content = defaultValoria;
         valoriaIdea.dimension = 'valoria';
         valoriaIdea.save().then((valoriaIdea) => {
-          //Create Code Idea
-          valoria.ideas.push('code');
-          valoria.things.push('code0');
-          let codeIdea = new Idea();
-          codeIdea.kind = 'code';
-          codeIdea.creator = 'james';
-          codeIdea.content = defaultCode;
-          codeIdea.dimension = 'valoria';
-          codeIdea.save().then((codeIdea) => {
-            //Create code thing
-            let codeThing = new Thing();
-            codeThing.kind = 'code';
-            codeThing.key = 'code0';
-            codeThing.creator = 'james';
-            codeThing.content = 'New Thing';
-            codeThing.dimension = 'valoria';
-            codeThing.save().then((codeThing) => {
-              valoria.save().then((valoria) => {
-                res.send(valoriaIdea.content);
+          //Create Square Idea
+          valoria.ideas.push('square');
+          let squareIdea = new Idea();
+          squareIdea.kind = 'square';
+          squareIdea.creator = 'james';
+          squareIdea.content = defaultSquare;
+          squareIdea.dimension = 'valoria';
+          squareIdea.save().then((squareIdea) => {
+            //Create Code Idea
+            valoria.ideas.push('code');
+            valoria.things.push('code0');
+            let codeIdea = new Idea();
+            codeIdea.kind = 'code';
+            codeIdea.creator = 'james';
+            codeIdea.content = defaultCode;
+            codeIdea.dimension = 'valoria';
+            codeIdea.save().then((codeIdea) => {
+              //Create code thing
+              let codeThing = new Thing();
+              codeThing.kind = 'code';
+              codeThing.key = 'code0';
+              codeThing.creator = 'james';
+              codeThing.content = 'New Thing';
+              codeThing.dimension = 'valoria';
+              codeThing.save().then((codeThing) => {
+                valoria.save().then((valoria) => {
+                  res.send(valoriaIdea.content);
+                })
               })
             })
           })
