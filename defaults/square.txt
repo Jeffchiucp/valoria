@@ -1,30 +1,92 @@
+let squareGun = valoriaGun.get('things').get(thingKey);
+
+//Create Default Position
+squareGun.get('pos').once((data) => {
+  if(!data){
+    squareGun.get('pos').put({
+      top : "100px",
+      left : "100px"
+    })
+  }
+});
+
+//Create Default Size
+squareGun.get('size').once((data) => {
+  if(!data){
+    squareGun.get('size').put({
+      width : "100px",
+      height : "100px"
+    })
+  }
+});
+
 let square = document.createElement('div');
 square.classList.add('square');
-square.id = thingKey
+square.id = thingKey || 'prototypeSquare';
 $(square).css({
   width : "100px",
   height : "100px",
   backgroundColor : "#5fa87e",
   position : "absolute",
-  top : "100px",
-  left : "100px",
   zIndex : "1",
   border : "2px solid #fffda0",
   display : "flex",
   flexDirection : "column",
   justifyContent : "center",
   alignItems : "center"
+});
+
+//For prototype squares only
+if(thingKey.includes('prototype')){
+  $('#' + thingKey).remove();
+  $(square).css({
+    width : "100px",
+    height : "100px",
+    top : "100px",
+    left : "100px"
+  })
+}
+
+//Update to new positions
+squareGun.get('pos').on((data) => {
+  $(square).css({
+    top : data.top,
+    left : data.left
+  })
 })
-$(square).draggable();
-$(square).resizable()
-$(valoria).append(square);
 
+//Update to new sizes
+squareGun.get('size').on((data) => {
+  $(square).css({
+    width : data.width,
+    height : data.height
+  })
+})
 
-//Only interact on the square itself.
-$(square).on('mousedown', (e) => {
-  if(!e.target.className.includes('square')){
-    $(square).draggable('disable');
-  }else{
-    $(square).draggable('enable');
+//Drag the square
+$(square).draggable({
+  //Save the positions
+  drag : (e, ui) => {
+    squareGun.get('pos').put({
+      left : ui.position.left,
+      top : ui.position.top
+    })
+  }
+});
+
+//Resize the square
+$(square).resizable({
+  //Save the sizes and position
+  resize : (e, ui) => {
+    squareGun.get('pos').put({
+      x : ui.position.left,
+      y : ui.position.top
+    })
+    squareGun.get('size').put({
+      width : ui.size.width,
+      height : ui.size.height
+    })
   }
 })
+
+$(valoria).append(square);

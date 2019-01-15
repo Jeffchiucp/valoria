@@ -6,6 +6,7 @@ const fs = require('fs');
 let defaultValoria;
 let defaultCode;
 let defaultSquare;
+let defaultTerminal;
 
 fs.readFile('./defaults/valoria.txt', 'utf8', (err, content) => {
   defaultValoria = content;
@@ -13,6 +14,9 @@ fs.readFile('./defaults/valoria.txt', 'utf8', (err, content) => {
     defaultCode = content;
     fs.readFile('./defaults/square.txt', 'utf8', (err, content) => {
       defaultSquare = content;
+      fs.readFile('./defaults/terminal.txt', 'utf8', (err, content) => {
+        defaultTerminal = content;
+      })
     })
   })
 })
@@ -26,7 +30,7 @@ module.exports = (app) => {
         let valoria = new Dimension();
         valoria.key = 'valoria';
         valoria.creator = 'james';
-        valoria.thingCount = 1;
+        valoria.thingCount = 2;
         valoria.content = defaultValoria;
         //Create Valoria Idea
         valoria.ideas.push('valoria');
@@ -61,8 +65,23 @@ module.exports = (app) => {
               codeThing.content = 'New Thing';
               codeThing.dimension = 'valoria';
               codeThing.save().then((codeThing) => {
-                valoria.save().then((valoria) => {
-                  res.send(valoriaIdea.content);
+                valoria.ideas.push('terminal');
+                valoria.things.push('terminal1');
+                let terminalIdea = new Idea();
+                terminalIdea.kind = 'terminal';
+                terminalIdea.creator = 'james';
+                terminalIdea.content = defaultTerminal;
+                terminalIdea.dimension = 'valoria';
+                terminalIdea.save().then((terminalIdea) => {
+                  let terminalThing = new Thing();
+                  terminalThing.kind = 'terminal';
+                  terminalThing.key = 'terminal1';
+                  terminalThing.dimension = 'valoria';
+                  terminalThing.save().then((terminalThing) => {
+                    valoria.save().then((valoria) => {
+                      res.send(valoriaIdea.content);
+                    })
+                  })
                 })
               })
             })

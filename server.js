@@ -39,6 +39,7 @@ app.get('/', (req, res) => {
     User.findById(req.user.id).then((user) => {
       if(!user){
         res.clearCookie('userToken');
+        res.render('main');
       }else{
         res.render('main', {currentUser : req.user})
       }
@@ -47,7 +48,6 @@ app.get('/', (req, res) => {
     res.clearCookie('userToken');
     res.render('main');
   }
-
 })
 
 //Controllers

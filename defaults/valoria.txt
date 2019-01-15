@@ -3,6 +3,8 @@ This is it. We're fetching all the things
 in the dimension and using their
 idea code to bring them to the dimension.*/
 
+let valoriaGun = Gun([`${window.location.href}gun`]).get('valoria').get('dimension').get('valoria');
+
 let valoria = document.createElement('div');
 valoria.classList.add('valoria');
 valoria.tabIndex = 1;
