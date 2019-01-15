@@ -8,7 +8,7 @@ const User = require('./models/user');
 require('dotenv').config();
 require('gun/lib/bye')
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost/valoria', { useNewUrlParser: true });
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/valoria', { useNewUrlParser: true });
 
 //App Setting
 app.set('views', './client/components')
@@ -59,10 +59,5 @@ require('./controllers/thing.js')(app);
 let server = app.listen(process.env.PORT || '3000');
 let gun = Gun({
   file: 'data.json', // local testing and development
-  s3: {
-    key: process.env.AWS_ACCESS_KEY_ID, // AWS Access Key
-    secret: process.env.AWS_SECRET_ACCESS_KEY, // AWS Secret Token
-    bucket: process.env.AWS_S3_BUCKET // The bucket you want to save into
-  },
   web: server
 });
