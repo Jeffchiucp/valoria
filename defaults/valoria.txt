@@ -3,7 +3,9 @@ This is it. We're fetching all the things
 in the dimension and using their
 idea code to bring them to the dimension.*/
 
-let valoriaGun = Gun([`${window.location.href}gun`]).get('valoria').get('dimension').get('valoria');
+let gun = Gun([`${window.location.href}gun`])
+
+let valoriaGun = gun.get('dimension').get('valoria');
 
 let valoria = document.createElement('div');
 valoria.classList.add('valoria');
@@ -28,7 +30,7 @@ axios.get('/dimension/valoria').then((dimensionRes) => {
   things.forEach((thingKey) => {
     axios.get('/dimension/valoria/thing/' + thingKey).then((thingRes) => {
       let thingKind = thingRes.data.kind;
-      let thingContent = thingRes.data.content;
+      let thingContent = JSON.parse(thingRes.data.content);
       axios.get('/dimension/valoria/idea/' + thingKind).then((ideaRes) => {
         let ideaContent = ideaRes.data.content
         eval(ideaContent);

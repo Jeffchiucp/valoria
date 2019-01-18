@@ -20,7 +20,9 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
     justifyContent : "flex-start",
     alignItems : "center",
     position : "absolute",
-    zIndex : "2"
+    zIndex : "2",
+    backgroundColor : "white",
+    border : "3px solid black",
   })
   $('#' + thingKey).append(code);
 
@@ -49,7 +51,7 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
     textAlign : "center",
     outline : "none"
   })
-  ideaInput.textContent = thingContent;
+  ideaInput.textContent = thingContent.ideaName;
   let kindOfIdea = ideaInput.textContent.toLowerCase();
   $(ideaInputContainer).append(ideaInput)
 
@@ -65,13 +67,94 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
   codeEditor.tabIndex = 0;
   $(code).append(codeEditor);
 
-  //Create Button Element to Run Code from Editor
+  //Create Code Controls
+  let codeControls = document.createElement('div');
+  codeControls.classList.add('codeControls');
+  $(codeControls).css({
+    display : "flex",
+    flexDirection : "row",
+    justifyContent : "flesStart",
+    alignItems : "center",
+    border : "2px solid black",
+    borderBottom : "0px",
+    width : "100%",
+    height : "10%",
+  })
+  $(code).append(codeControls);
+
+  //Create Toggle Privacy Button
+  let togglePrivacyBtn = document.createElement('div')
+  togglePrivacyBtn.classList.add('togglePrivacyBtn');
+  $(togglePrivacyBtn).css({
+    width : "50%",
+    height : "100%",
+    display : "flex",
+    justifyContent : "center",
+    alignItems : "center",
+    cursor : "pointer",
+    backgroundColor : "white"
+  })
+  let togglePrivacyBtnText = document.createElement('div');
+  togglePrivacyBtnText.classList.add('togglePrivacyBtnText');
+  togglePrivacyBtnText.textContent = "Public Idea";
+  $(togglePrivacyBtnText).css({
+    textAlign : "center",
+    fontSize : "25px",
+    fontWeight : "bold",
+    color : "#000000"
+  })
+  $(togglePrivacyBtn).append(togglePrivacyBtnText);
+  $(codeControls).append(togglePrivacyBtn);
+
+  //Toggle Privacy on TogglePrivacy Click
+  togglePrivacyBtn.onclick = function(){
+    if(togglePrivacyBtnText.textContent === 'Public Idea'){
+      togglePrivacyBtnText.textContent = "Private Idea";
+      $(code).css({
+        boxShadow : "0px 0px 5px 5px #e27f7f"
+      })
+      thingContent.isPrivate = true;
+    }else{
+      togglePrivacyBtnText.textContent = "Public Idea";
+      $(code).css({
+        boxShadow : "0px 0px 5px 5px #a9ff93"
+      })
+      thingContent.isPrivate = false;
+    }
+    if(thingContent.ideaName == dimension.key){
+      axios.post('/dimension/valoria/save', {
+        content : editor.getValue(),
+        isPrivate : thingContent.isPrivate
+      })
+    }
+    axios.post('/dimension/valoria/idea/' + thingContent.ideaName + '/save', {
+      content : editor.getValue(),
+      isPrivate : thingContent.isPrivate
+    })
+    axios.post('/dimension/valoria/thing/' + thingKey + '/save', {
+      content : thingContent
+    });
+  }
+
+  if(thingContent.isPrivate){
+    togglePrivacyBtnText.textContent = "Private Idea";
+    $(code).css({
+      boxShadow : "0px 0px 5px 5px #e27f7f"
+    })
+  }else{
+    togglePrivacyBtnText.textContent = "Public Idea";
+    $(code).css({
+      boxShadow : "0px 0px 5px 5px #a9ff93"
+    })
+  }
+
+  //Create Run Code Button
   let runCodeBtn = document.createElement('div')
   runCodeBtn.classList.add('runCodeBtn');
   $(runCodeBtn).css({
-    width : "100%",
-    height : "10%",
-    borderTop : "2px solid #000000",
+    width : "50%",
+    height : "100%",
+    borderLeft : "2px solid black",
     display : "flex",
     justifyContent : "center",
     alignItems : "center",
@@ -80,7 +163,7 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
   })
   let runCodeBtnText = document.createElement('div');
   runCodeBtnText.classList.add('runCodeBtnText');
-  runCodeBtnText.textContent = "Run Code";
+  runCodeBtnText.textContent = "Run Idea";
   $(runCodeBtnText).css({
     textAlign : "center",
     fontSize : "25px",
@@ -88,36 +171,25 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
     color : "#000000"
   })
   $(runCodeBtn).append(runCodeBtnText);
-  $(code).append(runCodeBtn);
+  $(codeControls).append(runCodeBtn);
+
+  //Run Code on Run Code Button Click
+  runCodeBtn.onclick = function(){
+    let thisCode = editor.getValue();
+    thingKey = 'prototype-' + thingContent.ideaName;
+    eval(thisCode);
+  }
 
   //Add Ace to Editor to make all codey
   let editor = ace.edit(codeEditor.id);
   editor.session.setMode("ace/mode/javascript");
   editor.session.setTabSize(2)
   editor.resize();
-  axios.get('/dimension/valoria/idea/' + thingContent).then((res) => {
+  axios.get('/dimension/valoria/idea/' + thingContent.ideaName).then((res) => {
     if(res.data.content){
       editor.setValue(res.data.content);
     }
   })
-  //Run Code on Run Code Button Click
-  runCodeBtn.onclick = function(){
-    let thisCode = editor.getValue();
-    if(thingContent == dimension.key){
-      axios.post('/dimension/valoria/save', {
-        content : thisCode
-      })
-    }
-    axios.post('/dimension/valoria/idea/' + thingContent + '/save', {
-      content : thisCode
-    }).then((res) => {
-      if(res.data.content){
-        editor.setValue(res.data.content);
-        thingKey = 'prototype-' + thingContent;
-        eval(res.data.content);
-      }
-    })
-  }
 
   //Blur and Focus for Editor
   let editingThisCode = false;
@@ -133,12 +205,12 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
     if (e.metaKey && e.keyCode == 83 || e.ctrlKey && e.keyCode == 83) {
       e.preventDefault();
       if(editingThisCode){
-        if(thingContent == dimension.key){
+        if(thingContent.ideaName == dimension.key){
           axios.post('/dimension/valoria/save', {
             content : editor.getValue()
           })
         }
-        axios.post('/dimension/valoria/idea/' + thingContent + '/save', {
+        axios.post('/dimension/valoria/idea/' + thingContent.ideaName + '/save', {
           content : editor.getValue()
         })
       }
@@ -149,22 +221,38 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
   $(ideaInput).on('blur', (e) => {
     kindOfIdea = ideaInput.textContent.toLowerCase();
     if(kindOfIdea.length > 0 ){
-      axios.get('/dimension/valoria/idea/' + kindOfIdea).then((res) => {
-        if(res.data){
-          if(res.data.err){
+      axios.get('/dimension/valoria/idea/' + kindOfIdea).then((ideaRes) => {
+        if(ideaRes){
+          if(ideaRes.data.err){
             axios.post('/dimension/valoria/idea/new', {
               content : '//Write code for ' + kindOfIdea,
-              kind : kindOfIdea
+              kind : kindOfIdea,
+              isPrivate : false,
             }).then((res) => {
               editor.setValue(res.data.content);
             })
           }else{
-            editor.setValue(res.data.content);
+            editor.setValue(ideaRes.data.content);
           }
           axios.post('/dimension/valoria/thing/' + thingKey + '/save', {
-            content : kindOfIdea
-          }).then(() => {
-            thingContent = kindOfIdea;
+            content : {
+              ideaName : kindOfIdea,
+              isPrivate : ideaRes.data.isPrivate
+            }
+          }).then((thingRes) => {
+            thingContent.ideaName = kindOfIdea,
+            thingContent.isPrivate = ideaRes.data.isPrivate
+            if(thingContent.isPrivate){
+              togglePrivacyBtnText.textContent = "Private Idea";
+              $(code).css({
+                boxShadow : "0px 0px 5px 5px #e27f7f"
+              })
+            }else{
+              togglePrivacyBtnText.textContent = "Public Idea";
+              $(code).css({
+                boxShadow : "0px 0px 5px 5px #a9ff93"
+              })
+            }
           });
         }
       })

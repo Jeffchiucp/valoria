@@ -14,7 +14,7 @@ fs.readFile('./defaults/valoria.txt', 'utf8', (err, content) => {
 
 module.exports = (app) => {
 
-  app.post('/dimension/:key/idea/:kind/save', (req, res) => {
+  app.post('/dimension/:key/idea/:kind/save', (req, res, next) => {
     Dimension.findOne({key : req.params.key}).then((dimension) => {
       if(!dimension){
         res.send({err : "Dimension does not exist!"});
@@ -23,10 +23,18 @@ module.exports = (app) => {
           if(!idea){
             res.send({err : "Idea does not exist!"});
           }else{
-            idea.content = req.body.content;
-            idea.save().then((idea) => {
-              res.send(idea);
-            })
+            if(
+              (!idea.isPrivate) ||
+              (idea.isPrivate && idea.editors.includes(req.user.username))
+            ){
+              idea.isPrivate = req.body.isPrivate;
+              idea.content = req.body.content;
+              idea.save().then((idea) => {
+                res.send(idea);
+              })
+            }else{
+              res.send({err : "You can't edit this idea"});
+            }
           }
         })
       }
@@ -46,6 +54,8 @@ module.exports = (app) => {
             newIdea.kind = req.body.kind;
             newIdea.content = req.body.content;
             newIdea.dimension = req.params.key;
+            newIdea.creator = req.user.username;
+            newIdea.editors.push(req.user.username);
             dimension.ideas.push(req.body.kind);
             newIdea.save().then((newIdea) => {
               dimension.save().then(() => {

@@ -58,6 +58,6 @@ require('./controllers/thing.js')(app);
 
 let server = app.listen(process.env.PORT || '3000');
 let gun = Gun({
-  file: 'data.json', // local testing and development
+  // file: 'data.json', // local testing and development
   web: server
 });

@@ -5,7 +5,8 @@ const bcrypt = require('bcrypt-nodejs')
 const UserSchema = new Schema({
   username : String,
   password : String,
-  admin : Boolean
+  admin : Boolean,
+  currentDimension : {type : String, default : "valoria"}
 });
 
 // generating a hash

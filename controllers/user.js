@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Dimension = require('../models/dimension');
 const jwt = require('jsonwebtoken');
 
 module.exports = (app) => {
@@ -16,6 +17,7 @@ module.exports = (app) => {
           let userData = {
             id: user._id,
             username : user.username,
+            currentDimension : user.currentDimension
           }
           let token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: "60 days"});
           res.cookie('userToken', token);
@@ -37,6 +39,7 @@ module.exports = (app) => {
         let userData = {
           id: user._id,
           username : user.username,
+          currentDimension : user.currentDimension
         }
         let token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: "60 days"});
         res.cookie('userToken', token);
@@ -48,6 +51,25 @@ module.exports = (app) => {
   app.get('/logout', (req, res) => {
     res.clearCookie('userToken');
     res.send();
+  })
+
+  app.get('/user/current_dimension', (req, res) => {
+    User.findOne({
+      _id : req.user.id,
+      current_dimension : req.user.current_dimension
+    }).then((user) => {
+      if(!user){
+        res.send({err : "You can't load this dimension"});
+      }else{
+        Dimension.findOne({key : req.user.currentDimension}).then((dimension) => {
+          if(!dimension){
+            res.send({err : "Dimension not found"});
+          }else{
+            res.send(dimension);
+          }
+        })
+      }
+    })
   })
 
 }

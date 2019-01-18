@@ -3,10 +3,12 @@ const { Schema } = mongoose;
 
 const IdeaSchema = new Schema({
   kind : String,
-  content : String,
+  content : {type : String},
   key : String,
   creator : {type : String, default : 'James'},
-  dimension : String
+  dimension : String,
+  isPrivate : {type : Boolean, default : false},
+  editors : Array
 });
 
 const Idea = mongoose.model('Idea', IdeaSchema);

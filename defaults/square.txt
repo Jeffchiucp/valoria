@@ -29,11 +29,12 @@ $(square).css({
   backgroundColor : "#5fa87e",
   position : "absolute",
   zIndex : "1",
-  border : "2px solid #fffda0",
+  boxShadow : "0px 0px 5px 5px #fffda0",
   display : "flex",
   flexDirection : "column",
   justifyContent : "center",
-  alignItems : "center"
+  alignItems : "center",
+  borderRadius : "5px"
 });
 
 //For prototype squares only

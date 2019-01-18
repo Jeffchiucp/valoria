@@ -7,7 +7,9 @@ const DimensionSchema = new Schema({
   ideas : Array,
   things : Array,
   thingCount : {default : 0, type : Number},
-  content : String
+  content : {type : String, default : '{}'},
+  isPrivate : {type : Boolean, default : false},
+  editors : Array
 });
 
 const Dimension = mongoose.model('Dimension', DimensionSchema);

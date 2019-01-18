@@ -64,7 +64,7 @@ module.exports = (app) => {
           if(!thing){
             res.send({err : "Thing does not exist!"});
           }else{
-            thing.content = req.body.content;
+            thing.content = JSON.stringify(req.body.content);
             thing.save().then((thing) => {
               res.send(thing);
             });
@@ -72,7 +72,23 @@ module.exports = (app) => {
         })
       }
     })
-  })
+  });
+
+  app.post('/dimension/:key/thing/:thingKey/delete', (req, res) => {
+    Dimension.findOneAndDelete({key : req.params.key}).then((dimension) => {
+      if(!dimension){
+        res.send({err : "Dimension does not exist!"})
+      }else{
+        Thing.findOne({key : req.params.thingKey, dimension : req.params.dimension}).then((thing) => {
+          if(!thing){
+            res.send({err : "Thing does not exist!"});
+          }else{
+            res.send("Deleted the thing");
+          }
+        });
+      }
+    });
+  });
 
 
 }
