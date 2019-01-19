@@ -193,9 +193,7 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
       editor.setValue(res.data.content);
     }
   })
-  console.log(!ideaData.editors.includes(thisUsername));
-  console.log(ideaData.isPrivate);
-  if(!ideaData.editors.includes(thisUsername) && ideaData.isPrivate){
+  if(thingContent.isPrivate && !ideaData.editors.includes(thisUsername)){
     editor.setReadOnly(true);
   }else{
     editor.setReadOnly(false);
@@ -242,9 +240,11 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
               isPrivate : false,
             }).then((res) => {
               editor.setValue(res.data.content);
+              thingContent.isPrivate = false;
             })
           }else{
             editor.setValue(ideaRes.data.content);
+            thingContent.isPrivate = ideaRes.data.isPrivate;
           }
           axios.post('/dimension/valoria/thing/' + thingKey + '/save', {
             content : {
@@ -264,6 +264,11 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
               $(code).css({
                 boxShadow : "0px 0px 5px 5px #a9ff93"
               })
+            }
+            if(thingContent.isPrivate && !ideaData.editors.includes(thisUsername)){
+              editor.setReadOnly(true);
+            }else{
+              editor.setReadOnly(false);
             }
           });
         }
