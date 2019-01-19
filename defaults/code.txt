@@ -108,32 +108,34 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
 
   //Toggle Privacy on TogglePrivacy Click
   togglePrivacyBtn.onclick = function(){
-    if(togglePrivacyBtnText.textContent === 'Public Idea'){
-      togglePrivacyBtnText.textContent = "Private Idea";
-      $(code).css({
-        boxShadow : "0px 0px 5px 5px #e27f7f"
-      })
-      thingContent.isPrivate = true;
-    }else{
-      togglePrivacyBtnText.textContent = "Public Idea";
-      $(code).css({
-        boxShadow : "0px 0px 5px 5px #a9ff93"
-      })
-      thingContent.isPrivate = false;
-    }
-    if(thingContent.ideaName == dimension.key){
-      axios.post('/dimension/valoria/save', {
+    if(ideaData.editors.includes(thisUsername)){
+      if(togglePrivacyBtnText.textContent === 'Public Idea'){
+        togglePrivacyBtnText.textContent = "Private Idea";
+        $(code).css({
+          boxShadow : "0px 0px 5px 5px #e27f7f"
+        })
+        thingContent.isPrivate = true;
+      }else{
+        togglePrivacyBtnText.textContent = "Public Idea";
+        $(code).css({
+          boxShadow : "0px 0px 5px 5px #a9ff93"
+        })
+        thingContent.isPrivate = false;
+      }
+      if(thingContent.ideaName == dimension.key){
+        axios.post('/dimension/valoria/save', {
+          content : editor.getValue(),
+          isPrivate : thingContent.isPrivate
+        })
+      }
+      axios.post('/dimension/valoria/idea/' + thingContent.ideaName + '/save', {
         content : editor.getValue(),
         isPrivate : thingContent.isPrivate
       })
+      axios.post('/dimension/valoria/thing/' + thingKey + '/save', {
+        content : thingContent
+      });
     }
-    axios.post('/dimension/valoria/idea/' + thingContent.ideaName + '/save', {
-      content : editor.getValue(),
-      isPrivate : thingContent.isPrivate
-    })
-    axios.post('/dimension/valoria/thing/' + thingKey + '/save', {
-      content : thingContent
-    });
   }
 
   if(thingContent.isPrivate){
@@ -147,6 +149,7 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
       boxShadow : "0px 0px 5px 5px #a9ff93"
     })
   }
+
 
   //Create Run Code Button
   let runCodeBtn = document.createElement('div')
@@ -190,6 +193,13 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
       editor.setValue(res.data.content);
     }
   })
+  console.log(!ideaData.editors.includes(thisUsername));
+  console.log(ideaData.isPrivate);
+  if(!ideaData.editors.includes(thisUsername) && ideaData.isPrivate){
+    editor.setReadOnly(true);
+  }else{
+    editor.setReadOnly(false);
+  }
 
   //Blur and Focus for Editor
   let editingThisCode = false;
@@ -207,11 +217,13 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
       if(editingThisCode){
         if(thingContent.ideaName == dimension.key){
           axios.post('/dimension/valoria/save', {
-            content : editor.getValue()
+            content : editor.getValue(),
+            isPrivate : thingContent.isPrivate
           })
         }
         axios.post('/dimension/valoria/idea/' + thingContent.ideaName + '/save', {
-          content : editor.getValue()
+          content : editor.getValue(),
+          isPrivate : thingContent.isPrivate
         })
       }
     }

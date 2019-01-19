@@ -7,6 +7,7 @@ let gun = Gun([`${window.location.href}gun`])
 
 let valoriaGun = gun.get('dimension').get('valoria');
 
+//Create Valoria Element
 let valoria = document.createElement('div');
 valoria.classList.add('valoria');
 valoria.tabIndex = 1;
@@ -23,6 +24,8 @@ $(valoria).css({
 })
 $('body').append(valoria);
 
+//Get User
+let thisUsername = $('#username').text();
 
 axios.get('/dimension/valoria').then((dimensionRes) => {
   let things = dimensionRes.data.things;
@@ -32,7 +35,8 @@ axios.get('/dimension/valoria').then((dimensionRes) => {
       let thingKind = thingRes.data.kind;
       let thingContent = JSON.parse(thingRes.data.content);
       axios.get('/dimension/valoria/idea/' + thingKind).then((ideaRes) => {
-        let ideaContent = ideaRes.data.content
+        let ideaData = ideaRes.data;
+        let ideaContent = ideaRes.data.content;
         eval(ideaContent);
       })
     })
