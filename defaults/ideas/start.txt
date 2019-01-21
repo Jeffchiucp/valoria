@@ -1,0 +1,52 @@
+/* So this is how we load valoria.
+This is it. We're fetching all the things
+in the dimension and using their
+idea code to bring them to the dimension.*/
+
+//Get User and Dimension
+let thisUsername = $('#username').text();
+let thisDimensionKey = $('#dimension').text();
+
+$('.' + thisDimensionKey).remove();
+
+let gun = Gun([`${window.location.href}gun`])
+
+let dimensionGun = gun.get('dimension').get(thisDimensionKey);
+
+//Create Dimension Element
+let thisDimension = document.createElement('div');
+thisDimension.classList.add(thisDimensionKey);
+thisDimension.tabIndex = 1;
+$(thisDimension).css({
+  width : "100%",
+  height : "100%",
+  position : "absolute",
+  display : "flex",
+  justifyContent : "center",
+  alignItems : "center",
+  zIndex : 0,
+  background : "url('https://i.imgur.com/TbwEvfU.png')",
+  backgroundColor : "#000000"
+})
+$('body').append(thisDimension);
+
+//Load Dimension Data
+axios.get('/dimension/' + thisDimensionKey).then((dimensionRes) => {
+  let things = dimensionRes.data.things;
+  let dimension = dimensionRes.data;
+  //Lets load the default things if
+  things.forEach((thingKey) => {
+    axios.get('/dimension/' + thisDimensionKey + '/thing/' + thingKey).then((thingRes) => {
+      let thingKind = thingRes.data.kind;
+      let thingContent;
+      if(thingRes.data.content){
+        thingContent = JSON.parse(thingRes.data.content);
+      }
+      axios.get('/dimension/' + thisDimensionKey + '/idea/' + thingKind).then((ideaRes) => {
+        let ideaData = ideaRes.data;
+        let ideaContent = ideaRes.data.content;
+        new Function(ideaContent)()
+      })
+    })
+  })
+})

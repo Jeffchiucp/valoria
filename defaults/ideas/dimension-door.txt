@@ -1,0 +1,88 @@
+use('square', (squareScript) => {
+  eval(squareScript);
+  let square = $('#' + thingKey);
+  $(square).css({
+    minWidth : "250px",
+    minHeight : "250px"
+  })
+
+  let thisDoorDimKey = thingContent.dimKey || 'prototype';
+
+  //Create Dimension Door Element
+  let dimensionDoor = document.createElement('div');
+  dimensionDoor.classList.add('dimensionDoor');
+  dimensionDoor.tabIndex = 1;
+  $(dimensionDoor).css({
+    width : "90%",
+    height : "90%",
+    display : "flex",
+    justifyContent : "center",
+    alignItems : "center",
+    backgroundColor : "#000000",
+    cursor : "pointer"
+  })
+  $(square).append(dimensionDoor);
+
+  //Create Dimension Door Label
+  let dimensionDoorLabel = document.createElement('div');
+  dimensionDoorLabel.classList.add('dimensionDoorLabel');
+  dimensionDoorLabel.textContent = "Join " + thisDoorDimKey + " Dimension";
+  $(dimensionDoorLabel).css({
+   fontSize : "30px",
+   color : "white",
+   fontWeight : "bold",
+   textAlign : "center"
+  })
+  $(dimensionDoor).append(dimensionDoorLabel);
+
+  //Join dimension on click
+  dimensionDoor.onclick = function(){
+    axios.get('/dimension/' + thisDoorDimKey).then((res) => {
+      if(!res.data.err){
+        //Remove Current Dimension
+        $('.' + thisDimensionKey).remove();
+        $('#dimension').text(res.data.key);
+
+        thisDimensionKey = res.data.key;
+
+        dimensionGun = gun.get('dimension').get(thisDimensionKey);
+
+        //Create Dimension Element
+        thisDimension = document.createElement('div');
+        thisDimension.classList.add(thisDimensionKey);
+        thisDimension.tabIndex = 1;
+        $(thisDimension).css({
+          width : "100%",
+          height : "100%",
+          position : "absolute",
+          display : "flex",
+          justifyContent : "center",
+          alignItems : "center",
+          zIndex : 0,
+          backgroundColor : "#000000"
+        })
+        $('body').append(thisDimension);
+
+        axios.get('/dimension/' + thisDimensionKey + '/idea/use').then((res) => {
+          use = eval(res.data.content)
+          axios.get('/dimension/' + thisDimensionKey).then((dimensionRes) => {
+            things = dimensionRes.data.things;
+            dimension = dimensionRes.data;
+            things.forEach((thingKey) => {
+              axios.get('/dimension/' + thisDimensionKey + '/thing/' + thingKey).then((thingRes) => {
+                thingKind = thingRes.data.kind;
+                let thingContent = JSON.parse(thingRes.data.content);
+                axios.get('/dimension/' + thisDimensionKey + '/idea/' + thingKind).then((ideaRes) => {
+                  ideaData = ideaRes.data;
+                  ideaContent = ideaRes.data.content;
+                  eval(ideaContent);
+                })
+              })
+            })
+          })
+        })
+      }
+    })
+  }
+
+})

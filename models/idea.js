@@ -8,7 +8,7 @@ const IdeaSchema = new Schema({
   creator : {type : String, default : 'James'},
   dimension : String,
   isPrivate : {type : Boolean, default : false},
-  editors : Array
+  editors : Array,
 });
 
 const Idea = mongoose.model('Idea', IdeaSchema);

@@ -2,99 +2,48 @@ const Dimension = require('../models/dimension');
 const Idea = require('../models/idea');
 const Thing = require('../models/thing');
 
+let defaultIdeas = require('../defaults/receiveDefaults');
+let defaultThings = ['code', 'terminal', 'use', 'main'];
+
+function createDefaultDimension(key, creator, cb){
+  let newDim = new Dimension();
+  newDim.key = key;
+  newDim.creator = creator;
+  newDim.editors.push(creator);
+  newDim.content = defaultIdeas.start;
+  newDim.isPrivate = true;
+  for(idea in defaultIdeas){
+    newDim.ideas.push(idea);
+    let newIdea = new Idea();
+    newIdea.kind = idea;
+    newIdea.creator = creator;
+    newIdea.editors.push(creator);
+    newIdea.content = defaultIdeas[idea];
+    newIdea.isPrivate = true;
+    newIdea.dimension = key;
+    newIdea.save();
+  }
+  defaultThings.forEach((idea) => {
+    newDim.things.push(idea + newDim.thingCount);
+    let newThing = new Thing();
+    newThing.kind = idea;
+    newThing.creator = creator;
+    newThing.content = '{}';
+    newThing.dimension = key;
+    newThing.key = idea + newDim.thingCount;
+    newDim.thingCount += 1;
+    newThing.save();
+  })
+  newDim.save().then((newDim) => {
+    cb(newDim);
+  });
+}
 
 //Creating the first dimension known as Valoria
-const fs = require('fs');
-let defaultValoria;
-let defaultCode;
-let defaultSquare;
-let defaultTerminal;
-fs.readFile('./defaults/valoria.txt', 'utf8', (err, content) => {
-  defaultValoria = content;
-  fs.readFile('./defaults/code.txt', 'utf8', (err, content) => {
-    defaultCode = content;
-    fs.readFile('./defaults/square.txt', 'utf8', (err, content) => {
-      defaultSquare = content;
-      fs.readFile('./defaults/terminal.txt', 'utf8', (err, content) => {
-        defaultTerminal = content;
-        Dimension.findOne({key : "valoria"}).then((dimension) => {
-          if(!dimension){
-            let valoria = new Dimension();
-            valoria.key = 'valoria';
-            valoria.creator = 'james';
-            valoria.editors.push('james');
-            valoria.thingCount = 2;
-            valoria.content = defaultValoria;
-            valoria.isPrivate = true;
-            //Create Valoria Idea
-            valoria.ideas.push('valoria');
-            let valoriaIdea = new Idea();
-            valoriaIdea.kind = 'valoria';
-            valoriaIdea.creator = 'james';
-            valoriaIdea.editors.push('james');
-            valoriaIdea.content = defaultValoria;
-            valoriaIdea.isPrivate = true;
-            valoriaIdea.dimension = 'valoria';
-            valoriaIdea.save().then((valoriaIdea) => {
-              //Create Square Idea
-              valoria.ideas.push('square');
-              let squareIdea = new Idea();
-              squareIdea.kind = 'square';
-              squareIdea.creator = 'james';
-              squareIdea.editors.push('james');
-              squareIdea.content = defaultSquare;
-              squareIdea.isPrivate = true;
-              squareIdea.dimension = 'valoria';
-              squareIdea.save().then((squareIdea) => {
-                //Create Code Idea
-                valoria.ideas.push('code');
-                valoria.things.push('code0');
-                let codeIdea = new Idea();
-                codeIdea.kind = 'code';
-                codeIdea.creator = 'james';
-                codeIdea.editors.push('james');
-                codeIdea.content = defaultCode;
-                codeIdea.isPrivate = true;
-                codeIdea.dimension = 'valoria';
-                codeIdea.save().then((codeIdea) => {
-                  //Create code thing
-                  let codeThing = new Thing();
-                  codeThing.kind = 'code';
-                  codeThing.key = 'code0';
-                  codeThing.creator = 'james';
-                  codeThing.content = `{
-                    "isPrivate" : false,
-                    "ideaName" : "New Thing"
-                  }`;
-                  codeThing.dimension = 'valoria';
-                  codeThing.save().then((codeThing) => {
-                    valoria.ideas.push('terminal');
-                    valoria.things.push('terminal1');
-                    let terminalIdea = new Idea();
-                    terminalIdea.kind = 'terminal';
-                    terminalIdea.creator = 'james';
-                    terminalIdea.editors.push('james');
-                    terminalIdea.content = defaultTerminal;
-                    terminalIdea.isPrivate = true;
-                    terminalIdea.dimension = 'valoria';
-                    terminalIdea.save().then((terminalIdea) => {
-                      let terminalThing = new Thing();
-                      terminalThing.kind = 'terminal';
-                      terminalThing.key = 'terminal1';
-                      terminalThing.dimension = 'valoria';
-                      terminalThing.save().then((terminalThing) => {
-                        valoria.save();
-                      })
-                    })
-                  })
-                })
-              })
-            })
-          }
-        })
-      })
-    })
-  })
+Dimension.findOne({key : "valoria"}).then((dimension) => {
+  if(!dimension){
+    createDefaultDimension('valoria', 'james');
+  }
 })
 
 module.exports = (app) => {
@@ -104,14 +53,14 @@ module.exports = (app) => {
       if(!dimension){
         res.send({err : 'No dimension found'});
       }else{
-        if(dimension.content == '' && dimension.key == 'valoria'){
-          dimension.content = defaultValoria;
+        if(!dimension.content && dimension.key == 'valoria'){
+          dimension.content = defaultDimension;
+          dimension.save();
         }
         res.send(dimension);
       }
     })
   })
-
 
   app.post('/dimension/:key/save', (req, res) => {
     Dimension.findOne({key : req.params.key, creator : req.user.username}).then((dimension) => {
@@ -132,6 +81,20 @@ module.exports = (app) => {
         }
       }
     })
+  })
+
+  app.post('/dimension/new', (req, res) => {
+    if(req.user){
+      Dimension.findOne({key : req.body.key}).then((dimension) => {
+        if(dimension){
+          res.send({err : "Dimension already exists!"});
+        }else{
+          createDefaultDimension(req.body.key, req.user.username, (newDim) => {
+            res.send(newDim);
+          });
+        }
+      })
+    }
   })
 
 }

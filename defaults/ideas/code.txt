@@ -1,4 +1,4 @@
-axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
+axios.get('/dimension/' + thisDimensionKey + '/idea/square').then((squareIdea) => {
   eval(squareIdea.data.content);
   let square = $('#' + thingKey);
   square.css({
@@ -51,7 +51,7 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
     textAlign : "center",
     outline : "none"
   })
-  ideaInput.textContent = thingContent.ideaName;
+  ideaInput.textContent = thingContent.ideaName || 'New Idea';
   let kindOfIdea = ideaInput.textContent.toLowerCase();
   $(ideaInputContainer).append(ideaInput)
 
@@ -123,16 +123,16 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
         thingContent.isPrivate = false;
       }
       if(thingContent.ideaName == dimension.key){
-        axios.post('/dimension/valoria/save', {
+        axios.post('/dimension/' + thisDimensionKey + '/save', {
           content : editor.getValue(),
           isPrivate : thingContent.isPrivate
         })
       }
-      axios.post('/dimension/valoria/idea/' + thingContent.ideaName + '/save', {
+      axios.post('/dimension/' + thisDimensionKey + '/idea/' + thingContent.ideaName + '/save', {
         content : editor.getValue(),
         isPrivate : thingContent.isPrivate
       })
-      axios.post('/dimension/valoria/thing/' + thingKey + '/save', {
+      axios.post('/dimension/' + thisDimensionKey + '/thing/' + thingKey + '/save', {
         content : thingContent
       });
     }
@@ -188,7 +188,12 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
   editor.session.setMode("ace/mode/javascript");
   editor.session.setTabSize(2)
   editor.resize();
-  axios.get('/dimension/valoria/idea/' + thingContent.ideaName).then((res) => {
+  $(square).resizable({
+    resize : function(){
+      editor.resize();
+    }
+  })
+  axios.get('/dimension/' + thisDimensionKey + '/idea/' + thingContent.ideaName).then((res) => {
     if(res.data.content){
       editor.setValue(res.data.content);
     }
@@ -214,12 +219,12 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
       e.preventDefault();
       if(editingThisCode){
         if(thingContent.ideaName == dimension.key){
-          axios.post('/dimension/valoria/save', {
+          axios.post('/dimension/' + thisDimensionKey + '/save', {
             content : editor.getValue(),
             isPrivate : thingContent.isPrivate
           })
         }
-        axios.post('/dimension/valoria/idea/' + thingContent.ideaName + '/save', {
+        axios.post('/dimension/' + thisDimensionKey + '/idea/' + thingContent.ideaName + '/save', {
           content : editor.getValue(),
           isPrivate : thingContent.isPrivate
         })
@@ -231,10 +236,10 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
   $(ideaInput).on('blur', (e) => {
     kindOfIdea = ideaInput.textContent.toLowerCase();
     if(kindOfIdea.length > 0 ){
-      axios.get('/dimension/valoria/idea/' + kindOfIdea).then((ideaRes) => {
+      axios.get('/dimension/' + thisDimensionKey + '/idea/' + kindOfIdea).then((ideaRes) => {
         if(ideaRes){
           if(ideaRes.data.err){
-            axios.post('/dimension/valoria/idea/new', {
+            axios.post('/dimension/' + thisDimensionKey + '/idea/new', {
               content : '//Write code for ' + kindOfIdea,
               kind : kindOfIdea,
               isPrivate : false,
@@ -246,7 +251,7 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
             editor.setValue(ideaRes.data.content);
             thingContent.isPrivate = ideaRes.data.isPrivate;
           }
-          axios.post('/dimension/valoria/thing/' + thingKey + '/save', {
+          axios.post('/dimension/' + thisDimensionKey + '/thing/' + thingKey + '/save', {
             content : {
               ideaName : kindOfIdea,
               isPrivate : ideaRes.data.isPrivate

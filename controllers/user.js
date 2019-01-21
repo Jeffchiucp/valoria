@@ -2,6 +2,12 @@ const User = require('../models/user');
 const Dimension = require('../models/dimension');
 const jwt = require('jsonwebtoken');
 
+const fs = require('fs');
+let defaultDimension;
+fs.readFile('./defaults/dimension.txt', 'utf8', (err, content) => {
+  defaultDimension = content;
+});
+
 module.exports = (app) => {
 
   app.post('/register', (req, res) => {
@@ -65,6 +71,10 @@ module.exports = (app) => {
           if(!dimension){
             res.send({err : "Dimension not found"});
           }else{
+            if(!dimension.content && dimension.key == 'valoria'){
+              dimension.content = defaultDimension;
+              dimension.save();
+            }
             res.send(dimension);
           }
         })

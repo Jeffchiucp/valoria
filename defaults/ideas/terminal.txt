@@ -1,5 +1,5 @@
 //Build on top of a square
-axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
+axios.get('/dimension/' + thisDimensionKey + '/idea/square').then((squareIdea) => {
   eval(squareIdea.data.content);
   let square = $('#' + thingKey);
   square.css({
@@ -53,9 +53,9 @@ axios.get('/dimension/valoria/idea/square').then((squareIdea) => {
       e.preventDefault();
       let termInputValue = termInput.textContent;
       if(termInputValue.length > 0){
-        axios.get('/dimension/valoria/idea/' + termInputValue).then((ideaRes) => {
+        axios.get('/dimension/' + thisDimensionKey + '/idea/' + termInputValue).then((ideaRes) => {
           if(ideaRes.data.content){
-            axios.post('/dimension/valoria/thing/new', {
+            axios.post('/dimension/' + thisDimensionKey + '/thing/new', {
               kind : termInputValue
             }).then((thingRes) => {
               if(thingRes.data.key){

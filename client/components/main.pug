@@ -39,6 +39,7 @@ meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-sc
 
 if currentUser
   p#username(hidden)=currentUser.username
+  p#dimension(hidden)=currentUser.currentDimension
   include dimension/dimension
 else
   include auth/auth

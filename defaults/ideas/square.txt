@@ -1,4 +1,4 @@
-let squareGun = valoriaGun.get('things').get(thingKey);
+let squareGun = dimensionGun.get('things').get(thingKey);
 
 //Create Default Position
 squareGun.get('pos').once((data) => {
@@ -90,4 +90,4 @@ $(square).resizable({
   }
 })
 
-$(valoria).append(square);
+$(thisDimension).append(square);

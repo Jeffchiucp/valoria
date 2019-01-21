@@ -1,0 +1,5 @@
+window["use"] = function(ideaName, cb){
+  axios.get('/dimension/' + thisDimensionKey + '/idea/' + ideaName).then((res) => {
+    cb(res.data.content);
+  })
+}
