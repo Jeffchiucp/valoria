@@ -3,7 +3,7 @@ const Idea = require('../models/idea');
 const Thing = require('../models/thing');
 
 let defaultIdeas = require('../defaults/receiveDefaults');
-let defaultThings = ['code', 'terminal', 'use', 'main'];
+let defaultThings = ['code', 'terminal', 'main'];
 
 function createDefaultDimension(key, creator, cb){
   let newDim = new Dimension();
@@ -14,6 +14,7 @@ function createDefaultDimension(key, creator, cb){
   newDim.isPrivate = true;
   for(idea in defaultIdeas){
     newDim.ideas.push(idea);
+    newDim.defaultIdeas.push(idea);
     let newIdea = new Idea();
     newIdea.kind = idea;
     newIdea.creator = creator;

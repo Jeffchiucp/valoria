@@ -1,93 +1,102 @@
-let squareGun = dimensionGun.get('things').get(thingKey);
+window.Square = class {
 
-//Create Default Position
-squareGun.get('pos').once((data) => {
-  if(!data){
-    squareGun.get('pos').put({
-      top : "100px",
-      left : "100px"
-    })
+  constructor(thingKey){
+    this.thingKey = thingKey;
+    this.gun = dimensionGun.get('things').get(thingKey);
   }
-});
 
-//Create Default Size
-squareGun.get('size').once((data) => {
-  if(!data){
-    squareGun.get('size').put({
+  build(){
+    var squareGun = this.gun
+
+    //Create Default Position
+    squareGun.get('pos').once((data) => {
+      if(!data){
+        squareGun.get('pos').put({
+          top : "100px",
+          left : "100px"
+        })
+      }
+    });
+
+    //Create Default Size
+    squareGun.get('size').once((data) => {
+      if(!data){
+        squareGun.get('size').put({
+          width : "100px",
+          height : "100px"
+        })
+      }
+    });
+
+    var square = document.createElement('div');
+    square.classList.add('square');
+    square.id = this.thingKey || 'prototypeSquare';
+    $(square).css({
       width : "100px",
-      height : "100px"
+      height : "100px",
+      backgroundColor : "#5fa87e",
+      position : "absolute",
+      zIndex : "1",
+      boxShadow : "0px 0px 5px 5px #fffda0",
+      display : "flex",
+      flexDirection : "column",
+      justifyContent : "center",
+      alignItems : "center",
+      borderRadius : "5px"
+    });
+
+    //For prototype squares only
+    if(this.thingKey.includes('prototype')){
+      $('#' + this.thingKey).remove();
+      $(square).css({
+        width : "100px",
+        height : "100px",
+        top : "100px",
+        left : "100px"
+      })
+    }
+
+    //Update to new positions
+    squareGun.get('pos').on((data) => {
+      $(square).css({
+        top : data.top,
+        left : data.left
+      })
     })
+
+    //Update to new sizes
+    squareGun.get('size').on((data) => {
+      $(square).css({
+        width : data.width,
+        height : data.height
+      })
+    })
+
+    //Drag the square
+    $(square).draggable({
+      //Save the positions
+      drag : (e, ui) => {
+        squareGun.get('pos').put({
+          left : ui.position.left,
+          top : ui.position.top
+        })
+      }
+    });
+
+    $(square).resizable({
+      stop : (e, ui) => {
+        squareGun.get('pos').put({
+          left : ui.position.left,
+          top : ui.position.top
+        });
+        squareGun.get('size').put({
+          width : ui.size.width,
+          height : ui.size.height
+        })
+      }
+    })
+
+    $(thisDimension).append(square);
   }
-});
 
-let square = document.createElement('div');
-square.classList.add('square');
-square.id = thingKey || 'prototypeSquare';
-$(square).css({
-  width : "100px",
-  height : "100px",
-  backgroundColor : "#5fa87e",
-  position : "absolute",
-  zIndex : "1",
-  boxShadow : "0px 0px 5px 5px #fffda0",
-  display : "flex",
-  flexDirection : "column",
-  justifyContent : "center",
-  alignItems : "center",
-  borderRadius : "5px"
-});
-
-//For prototype squares only
-if(thingKey.includes('prototype')){
-  $('#' + thingKey).remove();
-  $(square).css({
-    width : "100px",
-    height : "100px",
-    top : "100px",
-    left : "100px"
-  })
 }
-
-//Update to new positions
-squareGun.get('pos').on((data) => {
-  $(square).css({
-    top : data.top,
-    left : data.left
-  })
-})
-
-//Update to new sizes
-squareGun.get('size').on((data) => {
-  $(square).css({
-    width : data.width,
-    height : data.height
-  })
-})
-
-//Drag the square
-$(square).draggable({
-  //Save the positions
-  drag : (e, ui) => {
-    squareGun.get('pos').put({
-      left : ui.position.left,
-      top : ui.position.top
-    })
-  }
-});
-
-//Resize the square
-$(square).resizable({
-  //Save the sizes and position
-  resize : (e, ui) => {
-    squareGun.get('pos').put({
-      x : ui.position.left,
-      y : ui.position.top
-    })
-    squareGun.get('size').put({
-      width : ui.size.width,
-      height : ui.size.height
-    })
-  }
-})
-
-$(thisDimension).append(square);

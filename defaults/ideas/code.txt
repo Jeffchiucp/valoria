@@ -1,223 +1,143 @@
-axios.get('/dimension/' + thisDimensionKey + '/idea/square').then((squareIdea) => {
-  eval(squareIdea.data.content);
-  let square = $('#' + thingKey);
-  square.css({
-    minWidth : "450px",
-    minHeight : "450px",
-    padding : "40px"
-  })
-  //Create Code Element
-  let code = document.createElement('div')
-  code.classList.add('code');
-  code.id = thingKey + 'codeContainer';
-  $(code).css({
-    minWidth : "450px",
-    minHeight : "450px",
-    width : "90%",
-    height : "90%",
-    display : "flex",
-    flexDirection : "column",
-    justifyContent : "flex-start",
-    alignItems : "center",
-    position : "absolute",
-    zIndex : "2",
-    backgroundColor : "white",
-    border : "3px solid black",
-  })
-  $('#' + thingKey).append(code);
+window.Code = class {
 
-  //Create Idea Input Container
-  let ideaInputContainer = document.createElement('div');
-  ideaInputContainer.classList.add("ideaInputContainer");
-  $(ideaInputContainer).css({
-    height : "10%",
-    backgroundColor : "#ffffff",
-    width : "100%",
-    borderBottom : "2px solid #000000",
-    display : "flex",
-    justifyContent : "center",
-    alignItems : "center"
-  })
-  $(code).append(ideaInputContainer)
-
-  //Create Idea Input Text
-  let ideaInput = document.createElement('div');
-  ideaInput.classList.add('ideaInput');
-  ideaInput.contentEditable = true;
-  $(ideaInput).css({
-    color : "black",
-    fontSize : "20px",
-    fontWeight : "bold",
-    textAlign : "center",
-    outline : "none"
-  })
-  ideaInput.textContent = thingContent.ideaName || 'New Idea';
-  let kindOfIdea = ideaInput.textContent.toLowerCase();
-  $(ideaInputContainer).append(ideaInput)
-
-  //Create Code Editor Element
-  let codeEditor = document.createElement('div');
-  codeEditor.classList.add('codeEditor');
-  codeEditor.id = code.id + "editor";
-  $(codeEditor).css({
-    width : "100%",
-    height : "90%",
-    outline: "none"
-  })
-  codeEditor.tabIndex = 0;
-  $(code).append(codeEditor);
-
-  //Create Code Controls
-  let codeControls = document.createElement('div');
-  codeControls.classList.add('codeControls');
-  $(codeControls).css({
-    display : "flex",
-    flexDirection : "row",
-    justifyContent : "flesStart",
-    alignItems : "center",
-    border : "2px solid black",
-    borderBottom : "0px",
-    width : "100%",
-    height : "10%",
-  })
-  $(code).append(codeControls);
-
-  //Create Toggle Privacy Button
-  let togglePrivacyBtn = document.createElement('div')
-  togglePrivacyBtn.classList.add('togglePrivacyBtn');
-  $(togglePrivacyBtn).css({
-    width : "50%",
-    height : "100%",
-    display : "flex",
-    justifyContent : "center",
-    alignItems : "center",
-    cursor : "pointer",
-    backgroundColor : "white"
-  })
-  let togglePrivacyBtnText = document.createElement('div');
-  togglePrivacyBtnText.classList.add('togglePrivacyBtnText');
-  togglePrivacyBtnText.textContent = "Public Idea";
-  $(togglePrivacyBtnText).css({
-    textAlign : "center",
-    fontSize : "25px",
-    fontWeight : "bold",
-    color : "#000000"
-  })
-  $(togglePrivacyBtn).append(togglePrivacyBtnText);
-  $(codeControls).append(togglePrivacyBtn);
-
-  //Toggle Privacy on TogglePrivacy Click
-  togglePrivacyBtn.onclick = function(){
-    if(ideaData.editors.includes(thisUsername)){
-      if(togglePrivacyBtnText.textContent === 'Public Idea'){
-        togglePrivacyBtnText.textContent = "Private Idea";
-        $(code).css({
-          boxShadow : "0px 0px 5px 5px #e27f7f"
-        })
-        thingContent.isPrivate = true;
-      }else{
-        togglePrivacyBtnText.textContent = "Public Idea";
-        $(code).css({
-          boxShadow : "0px 0px 5px 5px #a9ff93"
-        })
-        thingContent.isPrivate = false;
-      }
-      if(thingContent.ideaName == dimension.key){
-        axios.post('/dimension/' + thisDimensionKey + '/save', {
-          content : editor.getValue(),
-          isPrivate : thingContent.isPrivate
-        })
-      }
-      axios.post('/dimension/' + thisDimensionKey + '/idea/' + thingContent.ideaName + '/save', {
-        content : editor.getValue(),
-        isPrivate : thingContent.isPrivate
-      })
-      axios.post('/dimension/' + thisDimensionKey + '/thing/' + thingKey + '/save', {
-        content : thingContent
-      });
-    }
+  //Code needs the thingKey and the thingContent
+  constructor(thingKey, thingContent){
+    this.thingKey = thingKey;
+    this.thingContent = thingContent;
   }
 
-  if(thingContent.isPrivate){
-    togglePrivacyBtnText.textContent = "Private Idea";
-    $(code).css({
-      boxShadow : "0px 0px 5px 5px #e27f7f"
+  build(){
+
+    let thingContent = this.thingContent || {
+      ideaName : "New Idea",
+      isPrivate : false,
+      editors : [thisUsername]
+    }
+
+    let squareInstance = new Square(this.thingKey);
+    squareInstance.build();
+    let square = $('#' + this.thingKey);
+    square.css({
+      minWidth : "450px",
+      minHeight : "450px",
+      padding : "40px"
     })
-  }else{
+    //Create Code Element
+    let code = document.createElement('div')
+    code.classList.add('code');
+    code.id = this.thingKey + 'codeContainer';
+    $(code).css({
+      minWidth : "450px",
+      minHeight : "450px",
+      width : "90%",
+      height : "90%",
+      display : "flex",
+      flexDirection : "column",
+      justifyContent : "flex-start",
+      alignItems : "center",
+      position : "absolute",
+      zIndex : "2",
+      backgroundColor : "white",
+      border : "3px solid black",
+    })
+    $('#' + this.thingKey).append(code);
+
+    //Create Idea Input Container
+    let ideaInputContainer = document.createElement('div');
+    ideaInputContainer.classList.add("ideaInputContainer");
+    $(ideaInputContainer).css({
+      height : "10%",
+      backgroundColor : "#ffffff",
+      width : "100%",
+      borderBottom : "2px solid #000000",
+      display : "flex",
+      justifyContent : "center",
+      alignItems : "center"
+    })
+    $(code).append(ideaInputContainer)
+
+    //Create Idea Input Text
+    let ideaInput = document.createElement('div');
+    ideaInput.classList.add('ideaInput');
+    ideaInput.contentEditable = true;
+    $(ideaInput).css({
+      color : "black",
+      fontSize : "20px",
+      fontWeight : "bold",
+      textAlign : "center",
+      outline : "none"
+    })
+    ideaInput.textContent = thingContent.ideaName || 'New Idea';
+    let kindOfIdea = ideaInput.textContent.toLowerCase();
+    $(ideaInputContainer).append(ideaInput)
+
+    //Create Code Editor Element
+    let codeEditor = document.createElement('div');
+    codeEditor.classList.add('codeEditor');
+    codeEditor.id = code.id + "editor";
+    $(codeEditor).css({
+      width : "100%",
+      height : "90%",
+      outline: "none"
+    })
+    codeEditor.tabIndex = 0;
+    $(code).append(codeEditor);
+
+    //Create Code Controls
+    let codeControls = document.createElement('div');
+    codeControls.classList.add('codeControls');
+    $(codeControls).css({
+      display : "flex",
+      flexDirection : "row",
+      justifyContent : "flesStart",
+      alignItems : "center",
+      border : "2px solid black",
+      borderBottom : "0px",
+      width : "100%",
+      height : "10%",
+    })
+    $(code).append(codeControls);
+
+    //Create Toggle Privacy Button
+    let togglePrivacyBtn = document.createElement('div')
+    togglePrivacyBtn.classList.add('togglePrivacyBtn');
+    $(togglePrivacyBtn).css({
+      width : "50%",
+      height : "100%",
+      display : "flex",
+      justifyContent : "center",
+      alignItems : "center",
+      cursor : "pointer",
+      backgroundColor : "white"
+    })
+    let togglePrivacyBtnText = document.createElement('div');
+    togglePrivacyBtnText.classList.add('togglePrivacyBtnText');
     togglePrivacyBtnText.textContent = "Public Idea";
-    $(code).css({
-      boxShadow : "0px 0px 5px 5px #a9ff93"
+    $(togglePrivacyBtnText).css({
+      textAlign : "center",
+      fontSize : "25px",
+      fontWeight : "bold",
+      color : "#000000"
     })
-  }
+    $(togglePrivacyBtn).append(togglePrivacyBtnText);
+    $(codeControls).append(togglePrivacyBtn);
 
-
-  //Create Run Code Button
-  let runCodeBtn = document.createElement('div')
-  runCodeBtn.classList.add('runCodeBtn');
-  $(runCodeBtn).css({
-    width : "50%",
-    height : "100%",
-    borderLeft : "2px solid black",
-    display : "flex",
-    justifyContent : "center",
-    alignItems : "center",
-    cursor : "pointer",
-    backgroundColor : "white"
-  })
-  let runCodeBtnText = document.createElement('div');
-  runCodeBtnText.classList.add('runCodeBtnText');
-  runCodeBtnText.textContent = "Run Idea";
-  $(runCodeBtnText).css({
-    textAlign : "center",
-    fontSize : "25px",
-    fontWeight : "bold",
-    color : "#000000"
-  })
-  $(runCodeBtn).append(runCodeBtnText);
-  $(codeControls).append(runCodeBtn);
-
-  //Run Code on Run Code Button Click
-  runCodeBtn.onclick = function(){
-    let thisCode = editor.getValue();
-    thingKey = 'prototype-' + thingContent.ideaName;
-    eval(thisCode);
-  }
-
-  //Add Ace to Editor to make all codey
-  let editor = ace.edit(codeEditor.id);
-  editor.session.setMode("ace/mode/javascript");
-  editor.session.setTabSize(2)
-  editor.resize();
-  $(square).resizable({
-    resize : function(){
-      editor.resize();
-    }
-  })
-  axios.get('/dimension/' + thisDimensionKey + '/idea/' + thingContent.ideaName).then((res) => {
-    if(res.data.content){
-      editor.setValue(res.data.content);
-    }
-  })
-  if(thingContent.isPrivate && !ideaData.editors.includes(thisUsername)){
-    editor.setReadOnly(true);
-  }else{
-    editor.setReadOnly(false);
-  }
-
-  //Blur and Focus for Editor
-  let editingThisCode = false;
-  editor.on("focus", () => {
-    editingThisCode = true;
-  })
-  editor.on("blur", () => {
-    editingThisCode = false;
-  })
-
-  //Save Code on CMD+S or CTRL+S
-  $(window).keydown((e) => {
-    if (e.metaKey && e.keyCode == 83 || e.ctrlKey && e.keyCode == 83) {
-      e.preventDefault();
-      if(editingThisCode){
+    //Toggle Privacy on TogglePrivacy Click
+    togglePrivacyBtn.onclick = function(){
+      if(thingContent.editors.includes(thisUsername)){
+        if(togglePrivacyBtnText.textContent === 'Public Idea'){
+          togglePrivacyBtnText.textContent = "Private Idea";
+          $(code).css({
+            boxShadow : "0px 0px 5px 5px #e27f7f"
+          })
+          thingContent.isPrivate = true;
+        }else{
+          togglePrivacyBtnText.textContent = "Public Idea";
+          $(code).css({
+            boxShadow : "0px 0px 5px 5px #a9ff93"
+          })
+          thingContent.isPrivate = false;
+        }
         if(thingContent.ideaName == dimension.key){
           axios.post('/dimension/' + thisDimensionKey + '/save', {
             content : editor.getValue(),
@@ -228,66 +148,164 @@ axios.get('/dimension/' + thisDimensionKey + '/idea/square').then((squareIdea) =
           content : editor.getValue(),
           isPrivate : thingContent.isPrivate
         })
+        axios.post('/dimension/' + thisDimensionKey + '/thing/' + this.thingKey + '/save', {
+          content : thingContent
+        });
       }
     }
-  });
 
-  //Change Idea on Idea Input Blur
-  $(ideaInput).on('blur', (e) => {
-    kindOfIdea = ideaInput.textContent.toLowerCase();
-    if(kindOfIdea.length > 0 ){
-      axios.get('/dimension/' + thisDimensionKey + '/idea/' + kindOfIdea).then((ideaRes) => {
-        if(ideaRes){
-          if(ideaRes.data.err){
-            axios.post('/dimension/' + thisDimensionKey + '/idea/new', {
-              content : '//Write code for ' + kindOfIdea,
-              kind : kindOfIdea,
-              isPrivate : false,
-            }).then((res) => {
-              editor.setValue(res.data.content);
-              thingContent.isPrivate = false;
-            })
-          }else{
-            editor.setValue(ideaRes.data.content);
-            thingContent.isPrivate = ideaRes.data.isPrivate;
-          }
-          axios.post('/dimension/' + thisDimensionKey + '/thing/' + thingKey + '/save', {
-            content : {
-              ideaName : kindOfIdea,
-              isPrivate : ideaRes.data.isPrivate
-            }
-          }).then((thingRes) => {
-            thingContent.ideaName = kindOfIdea,
-            thingContent.isPrivate = ideaRes.data.isPrivate
-            if(thingContent.isPrivate){
-              togglePrivacyBtnText.textContent = "Private Idea";
-              $(code).css({
-                boxShadow : "0px 0px 5px 5px #e27f7f"
-              })
-            }else{
-              togglePrivacyBtnText.textContent = "Public Idea";
-              $(code).css({
-                boxShadow : "0px 0px 5px 5px #a9ff93"
-              })
-            }
-            if(thingContent.isPrivate && !ideaData.editors.includes(thisUsername)){
-              editor.setReadOnly(true);
-            }else{
-              editor.setReadOnly(false);
-            }
-          });
-        }
+    if(thingContent.isPrivate){
+      togglePrivacyBtnText.textContent = "Private Idea";
+      $(code).css({
+        boxShadow : "0px 0px 5px 5px #e27f7f"
+      })
+    }else{
+      togglePrivacyBtnText.textContent = "Public Idea";
+      $(code).css({
+        boxShadow : "0px 0px 5px 5px #a9ff93"
       })
     }
-  })
 
-  //Square should only be active when clicking on it
-  $(square).on('mousedown', (e) => {
-    if(!e.target.className.includes('square')){
-      $(square).draggable('disable');
-    }else{
-      $(square).draggable('enable');
+
+    //Create Run Code Button
+    let runCodeBtn = document.createElement('div')
+    runCodeBtn.classList.add('runCodeBtn');
+    $(runCodeBtn).css({
+      width : "50%",
+      height : "100%",
+      borderLeft : "2px solid black",
+      display : "flex",
+      justifyContent : "center",
+      alignItems : "center",
+      cursor : "pointer",
+      backgroundColor : "white"
+    })
+    let runCodeBtnText = document.createElement('div');
+    runCodeBtnText.classList.add('runCodeBtnText');
+    runCodeBtnText.textContent = "Run Idea";
+    $(runCodeBtnText).css({
+      textAlign : "center",
+      fontSize : "25px",
+      fontWeight : "bold",
+      color : "#000000"
+    })
+    $(runCodeBtn).append(runCodeBtnText);
+    $(codeControls).append(runCodeBtn);
+
+    //Run Code on Run Code Button Click
+    runCodeBtn.onclick = function(){
+      let thisCode = editor.getValue();
+      this.thingKey = 'prototype-' + thingContent.ideaName;
+      eval(thisCode);
     }
-  })
 
-})
+    //Add Ace to Editor to make all codey
+    let editor = ace.edit(codeEditor.id);
+    editor.session.setMode("ace/mode/javascript");
+    editor.session.setTabSize(2)
+    editor.resize();
+    $(square).resizable({
+      resize : function(){
+        editor.resize();
+      }
+    })
+    axios.get('/dimension/' + thisDimensionKey + '/idea/' + thingContent.ideaName).then((res) => {
+      if(res.data.content){
+        editor.setValue(res.data.content);
+      }
+    })
+    if(thingContent.isPrivate && !thingContent.editors.includes(thisUsername)){
+      editor.setReadOnly(true);
+    }else{
+      editor.setReadOnly(false);
+    }
+
+    //Blur and Focus for Editor
+    let editingThisCode = false;
+    editor.on("focus", () => {
+      editingThisCode = true;
+    })
+    editor.on("blur", () => {
+      editingThisCode = false;
+    })
+
+    //Save Code on CMD+S or CTRL+S
+    $(window).keydown((e) => {
+      if (e.metaKey && e.keyCode == 83 || e.ctrlKey && e.keyCode == 83) {
+        e.preventDefault();
+        if(editingThisCode){
+          if(thingContent.ideaName == dimension.key){
+            axios.post('/dimension/' + thisDimensionKey + '/save', {
+              content : editor.getValue(),
+              isPrivate : thingContent.isPrivate
+            })
+          }
+          axios.post('/dimension/' + thisDimensionKey + '/idea/' + thingContent.ideaName + '/save', {
+            content : editor.getValue(),
+            isPrivate : thingContent.isPrivate
+          })
+        }
+      }
+    });
+
+    //Change Idea on Idea Input Blur
+    $(ideaInput).on('blur', (e) => {
+      kindOfIdea = ideaInput.textContent.toLowerCase();
+      if(kindOfIdea.length > 0 ){
+        axios.get('/dimension/' + thisDimensionKey + '/idea/' + kindOfIdea).then((ideaRes) => {
+          if(ideaRes){
+            if(ideaRes.data.err){
+              axios.post('/dimension/' + thisDimensionKey + '/idea/new', {
+                content : '//Write code for ' + kindOfIdea,
+                kind : kindOfIdea,
+                isPrivate : false,
+              }).then((res) => {
+                editor.setValue(res.data.content);
+                thingContent.isPrivate = false;
+              })
+            }else{
+              editor.setValue(ideaRes.data.content);
+              thingContent.isPrivate = ideaRes.data.isPrivate;
+            }
+            axios.post('/dimension/' + thisDimensionKey + '/thing/' + this.thingKey + '/save', {
+              content : {
+                ideaName : kindOfIdea,
+                isPrivate : ideaRes.data.isPrivate
+              }
+            }).then((thingRes) => {
+              thingContent.ideaName = kindOfIdea,
+              thingContent.isPrivate = ideaRes.data.isPrivate
+              if(thingContent.isPrivate){
+                togglePrivacyBtnText.textContent = "Private Idea";
+                $(code).css({
+                  boxShadow : "0px 0px 5px 5px #e27f7f"
+                })
+              }else{
+                togglePrivacyBtnText.textContent = "Public Idea";
+                $(code).css({
+                  boxShadow : "0px 0px 5px 5px #a9ff93"
+                })
+              }
+              if(thingContent.isPrivate && !thingContent.editors.includes(thisUsername)){
+                editor.setReadOnly(true);
+              }else{
+                editor.setReadOnly(false);
+              }
+            });
+          }
+        })
+      }
+    })
+
+    //Square should only be active when clicking on it
+    $(square).on('mousedown', (e) => {
+      if(!e.target.className.includes('square')){
+        $(square).draggable('disable');
+      }else{
+        $(square).draggable('enable');
+      }
+    })
+
+  }
+
+}

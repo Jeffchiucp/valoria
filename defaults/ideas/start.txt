@@ -4,17 +4,17 @@ in the dimension and using their
 idea code to bring them to the dimension.*/
 
 //Get User and Dimension
-let thisUsername = $('#username').text();
-let thisDimensionKey = $('#dimension').text();
+window.thisUsername = $('#username').text();
+window.thisDimensionKey = $('#dimension').text();
 
 $('.' + thisDimensionKey).remove();
 
 let gun = Gun([`${window.location.href}gun`])
 
-let dimensionGun = gun.get('dimension').get(thisDimensionKey);
+window.dimensionGun = gun.get('dimension').get(thisDimensionKey);
 
 //Create Dimension Element
-let thisDimension = document.createElement('div');
+window.thisDimension = document.createElement('div');
 thisDimension.classList.add(thisDimensionKey);
 thisDimension.tabIndex = 1;
 $(thisDimension).css({
@@ -30,22 +30,35 @@ $(thisDimension).css({
 })
 $('body').append(thisDimension);
 
+window.ideas = {};
+
 //Load Dimension Data
 axios.get('/dimension/' + thisDimensionKey).then((dimensionRes) => {
-  let things = dimensionRes.data.things;
   let dimension = dimensionRes.data;
-  //Lets load the default things if
-  things.forEach((thingKey) => {
-    axios.get('/dimension/' + thisDimensionKey + '/thing/' + thingKey).then((thingRes) => {
-      let thingKind = thingRes.data.kind;
-      let thingContent;
-      if(thingRes.data.content){
-        thingContent = JSON.parse(thingRes.data.content);
+  //Load the use idea
+  axios.get('/dimension/' + thisDimensionKey + "/idea/use").then((useRes) => {
+    new Function(useRes.data.content)();
+
+    //Use all the default ideas
+    dimension.defaultIdeas.forEach((idea) => {
+      if(idea != 'start' && idea != 'use'){
+        use(idea);
       }
-      axios.get('/dimension/' + thisDimensionKey + '/idea/' + thingKind).then((ideaRes) => {
-        let ideaData = ideaRes.data;
-        let ideaContent = ideaRes.data.content;
-        new Function(ideaContent)()
+    })
+
+    //Lets load the things in this dimension
+    window.things = {};
+    dimensionRes.data.things.forEach((thingKey) => {
+      axios.get('/dimension/' + thisDimensionKey + '/thing/' + thingKey).then((thingRes) => {
+        if(thingRes.data.content){
+          thingContent = JSON.parse(thingRes.data.content);
+        }
+        things[thingKey] = new Thing(thingRes.data.kind);
+        things[thingKey].key = thingKey;
+        things[thingKey].creator = thingRes.data.creator;
+        things[thingKey].dimension = thingRes.data.dimension;
+        things[thingKey].content = thingContent;
+        things[thingKey].build();
       })
     })
   })

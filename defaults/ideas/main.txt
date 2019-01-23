@@ -1,0 +1,11 @@
+window.Main = class {
+
+  constructor(thingKey){
+    this.thingKey = thingKey;
+  }
+
+  build(){
+    console.log("I am Main!");
+  }
+
+}

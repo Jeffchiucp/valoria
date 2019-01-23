@@ -10,6 +10,7 @@ const DimensionSchema = new Schema({
   content : {type : String, default : '{}'},
   isPrivate : {type : Boolean, default : false},
   editors : Array,
+  defaultIdeas : Array,
   defaultThings : Array
 });
 

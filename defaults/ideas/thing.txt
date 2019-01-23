@@ -1,0 +1,38 @@
+window.Thing = class {
+
+  //making new things
+  constructor(ideaName){
+    this.kind = ideaName;
+    this.dimension = thisDimensionKey;
+    this.creator = thisUsername;
+  }
+
+  create(){
+    //get the idea
+    axios.get('/dimension/' + thisDimensionKey + '/idea/' + ideaName)
+    .then((ideaRes) => {
+      if(!ideaRes.data.err){
+        //create a new thing of that kind
+        axios.post('/dimension/' + thisDimensionKey + '/thing/new', {
+          kind : ideaName
+        }).then((thingRes) => {
+          if(!thingRes.data.err){
+            this.key = thingRes.data.key;
+            this.kind = thingRes.data.kind;
+            this.content = thingRes.data.content;
+            this.creator = thingRes.data.creator;
+            this.dimension = thingRes.data.dimension;
+          }
+        })
+      }
+    })
+  }
+
+  build(){
+    let thingClass = this.kind[0].toUpperCase() + this.kind.substr(1, this.kind.length);
+    var buildFunction = new Function("let thisThing = new " + thingClass + "(this.key); thisThing.build();")
+    buildFunction = buildFunction.bind(this);
+    buildFunction();
+  }
+
+}
