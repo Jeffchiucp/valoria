@@ -29,7 +29,6 @@ function createDefaultDimension(key, creator, cb){
     let newThing = new Thing();
     newThing.kind = idea;
     newThing.creator = creator;
-    newThing.content = '{}';
     newThing.dimension = key;
     newThing.key = idea + newDim.thingCount;
     newDim.thingCount += 1;

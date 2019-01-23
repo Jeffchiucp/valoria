@@ -1,8 +1,8 @@
 window.Square = class {
 
-  constructor(thingKey){
-    this.thingKey = thingKey;
-    this.gun = dimensionGun.get('things').get(thingKey);
+  constructor(thing){
+    this.thingKey = thing.key;
+    this.gun = dimensionGun.get('things').get(thing.key);
   }
 
   build(){

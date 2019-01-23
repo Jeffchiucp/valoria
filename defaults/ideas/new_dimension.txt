@@ -1,0 +1,100 @@
+window.New_dimension = class {
+
+  constructor(thingKey){
+    this.thingKey = thingKey
+  }
+
+  build(){
+
+    let thingKey = this.thingKey
+
+    let squareInstance = new Square(thingKey);
+    squareInstance.build();
+
+    let square = $('#' + thingKey);
+    $(square).css({
+      minHeight : "120px",
+      minWidth : "230px"
+    })
+
+    //Create new dimension container
+    let newDimension = document.createElement('div');
+    newDimension.id = thingKey + 'container';
+    newDimension.classList.add("newDimension");
+    $(newDimension).css({
+      width : "90%",
+      height : "90%",
+      display : "flex",
+      flexDirection : "column",
+      alignItems : "center",
+      justifyContent : "flexStart",
+    })
+    $(square).append(newDimension);
+
+    //Create new dimension input
+    let newDimensionInput = document.createElement('input');
+    newDimensionInput.id = thingKey + 'input';
+    newDimensionInput.classList.add('newDimensionInput');
+    newDimensionInput.placeholder = "New Dimension Name";
+    $(newDimensionInput).css({
+      fontSize : "15px",
+      width : "100%",
+      padding : "5px",
+      textAlign : "center",
+      fontWeight : "bold"
+    })
+    $(newDimension).append(newDimensionInput)
+
+    //create new dimension button
+    let newDimensionBtn = document.createElement("div");
+    newDimensionBtn.id = thingKey + 'btn';
+    newDimensionBtn.classList.add('newDimensionBtn');
+    $(newDimensionBtn).css({
+      width : "100%",
+      height : "75%",
+      border : "2px solid black",
+      borderRadius : "5px",
+      marginTop : "5px",
+      cursor : "pointer",
+      backgroundColor : "white",
+      display : "flex",
+      justifyContent : "center",
+      alignItems : "center"
+    })
+    $(newDimension).append(newDimensionBtn)
+
+    //create new dimension button label
+    let newDimensionBtnLabel = document.createElement("div");
+    newDimensionBtnLabel.id = thingKey + 'BtnLabel';
+    newDimensionBtnLabel.classList.add('newDimensionBtnLabel');
+    newDimensionBtnLabel.textContent = "Create Dimension"
+    $(newDimensionBtnLabel).css({
+      fontSize : "20px",
+      fontWeight : "bold"
+    })
+    $(newDimensionBtn).append(newDimensionBtnLabel)
+
+    //Create a new dimension on click
+    newDimensionBtn.onclick = function(){
+      let newDimensionKey = newDimensionInput.value;
+      if(newDimensionKey.length > 0){
+        axios.post('/dimension/new', {
+          key : newDimensionKey
+        }).then((res) => {
+          $('#' + thingKey).remove();
+          axios.post('/dimension/' + thisDimensionKey + '/thing/new',{
+            kind : "dimension-door"
+          }).then((thingRes) => {
+            thingKind = thingRes.data.kind;
+            thingKey = thingRes.data.key;
+            thingContent['dimKey'] = res.data.key;
+            use('dimension-door', (dimDoorScript) => {
+              eval(dimDoorScript);
+            })
+          })
+        })
+      }
+    }
+  }
+
+}

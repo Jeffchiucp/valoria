@@ -50,6 +50,7 @@ axios.get('/dimension/' + thisDimensionKey).then((dimensionRes) => {
     window.things = {};
     dimensionRes.data.things.forEach((thingKey) => {
       axios.get('/dimension/' + thisDimensionKey + '/thing/' + thingKey).then((thingRes) => {
+        let thingContent;
         if(thingRes.data.content){
           thingContent = JSON.parse(thingRes.data.content);
         }

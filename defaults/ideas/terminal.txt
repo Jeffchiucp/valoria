@@ -1,13 +1,13 @@
 window.Terminal = class {
 
-  constructor(thingKey){
-    this.thingKey = thingKey
+  constructor(thing){
+    Object.assign(this, thing);
   }
 
   build(){
-    let squareInstance = new Square(this.thingKey);
+    let squareInstance = new Square(this);
     squareInstance.build();
-    let square = $('#' + this.thingKey);
+    let square = $('#' + this.key);
     square.css({
       width : "575px",
       height : "50px",
@@ -20,7 +20,7 @@ window.Terminal = class {
     //Create the terminal shell
     let terminal = document.createElement('div');
     terminal.classList.add("terminal");
-    terminal.id = this.thingKey;
+    terminal.id = this.key;
     $(terminal).css({
       backgroundColor : "#000000",
       width : "100%",
@@ -34,7 +34,7 @@ window.Terminal = class {
 
     let termInput = document.createElement('div');
     termInput.classList.add("termInput");
-    termInput.id = this.thingKey + "input";
+    termInput.id = this.key + "input";
     termInput.contentEditable = true;
     termInput.spellcheck = false;
     $(termInput).css({

@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const ThingSchema = new Schema({
   kind : String,
-  content : {type : String, default : '{}'},
+  content : {type : String, default : ''},
   key : String,
   creator : {type : String, default : 'James'},
   dimension : String

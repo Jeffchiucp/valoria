@@ -30,7 +30,7 @@ window.Thing = class {
 
   build(){
     let thingClass = this.kind[0].toUpperCase() + this.kind.substr(1, this.kind.length);
-    var buildFunction = new Function("let thisThing = new " + thingClass + "(this.key); thisThing.build();")
+    var buildFunction = new Function("let thisThing = new " + thingClass + "(this); thisThing.build();")
     buildFunction = buildFunction.bind(this);
     buildFunction();
   }

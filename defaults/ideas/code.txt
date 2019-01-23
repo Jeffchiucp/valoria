@@ -1,22 +1,21 @@
 window.Code = class {
 
-  //Code needs the thingKey and the thingContent
-  constructor(thingKey, thingContent){
-    this.thingKey = thingKey;
-    this.thingContent = thingContent;
+  constructor(thing){
+    Object.assign(this, thing);
   }
 
   build(){
 
-    let thingContent = this.thingContent || {
+    let thingContent = this.content || {
       ideaName : "New Idea",
       isPrivate : false,
       editors : [thisUsername]
     }
 
-    let squareInstance = new Square(this.thingKey);
+
+    let squareInstance = new Square(this);
     squareInstance.build();
-    let square = $('#' + this.thingKey);
+    let square = $('#' + this.key);
     square.css({
       minWidth : "450px",
       minHeight : "450px",
@@ -25,7 +24,7 @@ window.Code = class {
     //Create Code Element
     let code = document.createElement('div')
     code.classList.add('code');
-    code.id = this.thingKey + 'codeContainer';
+    code.id = this.key + 'codeContainer';
     $(code).css({
       minWidth : "450px",
       minHeight : "450px",
@@ -40,7 +39,7 @@ window.Code = class {
       backgroundColor : "white",
       border : "3px solid black",
     })
-    $('#' + this.thingKey).append(code);
+    $('#' + this.key).append(code);
 
     //Create Idea Input Container
     let ideaInputContainer = document.createElement('div');
@@ -148,7 +147,7 @@ window.Code = class {
           content : editor.getValue(),
           isPrivate : thingContent.isPrivate
         })
-        axios.post('/dimension/' + thisDimensionKey + '/thing/' + this.thingKey + '/save', {
+        axios.post('/dimension/' + thisDimensionKey + '/thing/' + this.key + '/save', {
           content : thingContent
         });
       }
@@ -182,7 +181,7 @@ window.Code = class {
     })
     let runCodeBtnText = document.createElement('div');
     runCodeBtnText.classList.add('runCodeBtnText');
-    runCodeBtnText.textContent = "Run Idea";
+    runCodeBtnText.textContent = "Build Idea";
     $(runCodeBtnText).css({
       textAlign : "center",
       fontSize : "25px",
@@ -195,8 +194,11 @@ window.Code = class {
     //Run Code on Run Code Button Click
     runCodeBtn.onclick = function(){
       let thisCode = editor.getValue();
-      this.thingKey = 'prototype-' + thingContent.ideaName;
+      this.key = 'prototype-' + thingContent.ideaName;
       eval(thisCode);
+      let thingClass = thingContent.ideaName[0].toUpperCase() + thingContent.ideaName.substr(1, thingContent.ideaName.length);
+      var buildFunction = new Function("let thisThing = new " + thingClass + "('prototype-" + thingClass + "'); thisThing.build();")
+      buildFunction();
     }
 
     //Add Ace to Editor to make all codey
@@ -267,10 +269,11 @@ window.Code = class {
               editor.setValue(ideaRes.data.content);
               thingContent.isPrivate = ideaRes.data.isPrivate;
             }
-            axios.post('/dimension/' + thisDimensionKey + '/thing/' + this.thingKey + '/save', {
+            axios.post('/dimension/' + thisDimensionKey + '/thing/' + this.key + '/save', {
               content : {
                 ideaName : kindOfIdea,
-                isPrivate : ideaRes.data.isPrivate
+                isPrivate : ideaRes.data.isPrivate,
+                editors : ideaRes.data.editors
               }
             }).then((thingRes) => {
               thingContent.ideaName = kindOfIdea,
