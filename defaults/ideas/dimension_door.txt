@@ -1,15 +1,15 @@
 window.Dimension_door = class {
 
   //Dimension Doors need a thingKey and a dimKey
-  constructor(thingKey, dimKey){
-    this.thingKey = thingKey
+  constructor(thing){
+    Object.assign(this, thing);
   }
 
   build(){
-    let thingKey = this.thingKey
-    let thisDoorDimKey = this.dimKey || 'prototype';
+    let thingKey = this.key
+    let thisDoorDimKey = this.content.dimKey || 'prototype';
 
-    let squareInstance = new Square(thingKey)
+    let squareInstance = new Square(this)
     squareInstance.build();
 
     let square = $('#' + thingKey);
@@ -53,12 +53,12 @@ window.Dimension_door = class {
           $('.' + thisDimensionKey).remove();
           $('#dimension').text(res.data.key);
 
-          thisDimensionKey = res.data.key;
+          window.thisDimensionKey = res.data.key;
 
-          dimensionGun = gun.get('dimension').get(thisDimensionKey);
+          window.dimensionGun = gun.get('dimension').get(thisDimensionKey);
 
           //Create Dimension Element
-          thisDimension = document.createElement('div');
+          window.thisDimension = document.createElement('div');
           thisDimension.classList.add(thisDimensionKey);
           thisDimension.tabIndex = 1;
           $(thisDimension).css({
@@ -73,20 +73,36 @@ window.Dimension_door = class {
           })
           $('body').append(thisDimension);
 
-          axios.get('/dimension/' + thisDimensionKey + '/idea/use').then((res) => {
-            use = eval(res.data.content)
-            axios.get('/dimension/' + thisDimensionKey).then((dimensionRes) => {
-              things = dimensionRes.data.things;
-              dimension = dimensionRes.data;
-              things.forEach((thingKey) => {
+          window.ideas = {};
+
+          //Load Dimension Data
+          axios.get('/dimension/' + thisDimensionKey).then((dimensionRes) => {
+            let dimension = dimensionRes.data;
+            //Load the use idea
+            axios.get('/dimension/' + thisDimensionKey + "/idea/use").then((useRes) => {
+              new Function(useRes.data.content)();
+
+              //Use all the default ideas
+              dimension.defaultIdeas.forEach((idea) => {
+                if(idea != 'start' && idea != 'use'){
+                  use(idea);
+                }
+              })
+
+              //Lets load the things in this dimension
+              window.things = {};
+              dimensionRes.data.things.forEach((thingKey) => {
                 axios.get('/dimension/' + thisDimensionKey + '/thing/' + thingKey).then((thingRes) => {
-                  thingKind = thingRes.data.kind;
-                  let thingContent = JSON.parse(thingRes.data.content);
-                  axios.get('/dimension/' + thisDimensionKey + '/idea/' + thingKind).then((ideaRes) => {
-                    ideaData = ideaRes.data;
-                    ideaContent = ideaRes.data.content;
-                    eval(ideaContent);
-                  })
+                  let thingContent;
+                  if(thingRes.data.content){
+                    thingContent = JSON.parse(thingRes.data.content);
+                  }
+                  things[thingKey] = new Thing(thingRes.data.kind);
+                  things[thingKey].key = thingKey;
+                  things[thingKey].creator = thingRes.data.creator;
+                  things[thingKey].dimension = thingRes.data.dimension;
+                  things[thingKey].content = thingContent;
+                  things[thingKey].build();
                 })
               })
             })

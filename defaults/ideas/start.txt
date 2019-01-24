@@ -9,7 +9,7 @@ window.thisDimensionKey = $('#dimension').text();
 
 $('.' + thisDimensionKey).remove();
 
-let gun = Gun([`${window.location.href}gun`])
+window.gun = Gun([`${window.location.href}gun`])
 
 window.dimensionGun = gun.get('dimension').get(thisDimensionKey);
 

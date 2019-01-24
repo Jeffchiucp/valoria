@@ -1,14 +1,14 @@
 window.New_dimension = class {
 
-  constructor(thingKey){
-    this.thingKey = thingKey
+  constructor(thing){
+    Object.assign(this, thing);
   }
 
   build(){
 
-    let thingKey = this.thingKey
+    let thingKey = this.key
 
-    let squareInstance = new Square(thingKey);
+    let squareInstance = new Square(this);
     squareInstance.build();
 
     let square = $('#' + thingKey);
@@ -81,17 +81,14 @@ window.New_dimension = class {
         axios.post('/dimension/new', {
           key : newDimensionKey
         }).then((res) => {
-          $('#' + thingKey).remove();
-          axios.post('/dimension/' + thisDimensionKey + '/thing/new',{
-            kind : "dimension-door"
-          }).then((thingRes) => {
-            thingKind = thingRes.data.kind;
-            thingKey = thingRes.data.key;
-            thingContent['dimKey'] = res.data.key;
-            use('dimension-door', (dimDoorScript) => {
-              eval(dimDoorScript);
-            })
-          })
+          if(!res.data.err){
+            $('#' + thingKey).remove();
+            var newDoor = new Thing("dimension_door");
+            newDoor.create((newDoor) => {
+              newDoor.content = {dimKey : newDimensionKey}
+              newDoor.build();
+            });
+          }
         })
       }
     }

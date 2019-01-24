@@ -7,14 +7,14 @@ window.Thing = class {
     this.creator = thisUsername;
   }
 
-  create(){
+  create(cb){
     //get the idea
-    axios.get('/dimension/' + thisDimensionKey + '/idea/' + ideaName)
+    axios.get('/dimension/' + thisDimensionKey + '/idea/' + this.kind)
     .then((ideaRes) => {
       if(!ideaRes.data.err){
         //create a new thing of that kind
         axios.post('/dimension/' + thisDimensionKey + '/thing/new', {
-          kind : ideaName
+          kind : this.kind
         }).then((thingRes) => {
           if(!thingRes.data.err){
             this.key = thingRes.data.key;
@@ -22,6 +22,7 @@ window.Thing = class {
             this.content = thingRes.data.content;
             this.creator = thingRes.data.creator;
             this.dimension = thingRes.data.dimension;
+            cb(this);
           }
         })
       }

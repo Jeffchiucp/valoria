@@ -1,7 +1,7 @@
 window.Square = class {
 
   constructor(thing){
-    this.thingKey = thing.key;
+    Object.assign(this, thing);
     this.gun = dimensionGun.get('things').get(thing.key);
   }
 
@@ -30,7 +30,7 @@ window.Square = class {
 
     var square = document.createElement('div');
     square.classList.add('square');
-    square.id = this.thingKey || 'prototypeSquare';
+    square.id = this.key || 'prototypeSquare';
     $(square).css({
       width : "100px",
       height : "100px",
@@ -46,8 +46,8 @@ window.Square = class {
     });
 
     //For prototype squares only
-    if(this.thingKey.includes('prototype')){
-      $('#' + this.thingKey).remove();
+    if(this.key.includes('prototype')){
+      $('#' + this.key).remove();
       $(square).css({
         width : "100px",
         height : "100px",

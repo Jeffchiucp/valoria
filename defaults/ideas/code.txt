@@ -197,7 +197,7 @@ window.Code = class {
       this.key = 'prototype-' + thingContent.ideaName;
       eval(thisCode);
       let thingClass = thingContent.ideaName[0].toUpperCase() + thingContent.ideaName.substr(1, thingContent.ideaName.length);
-      var buildFunction = new Function("let thisThing = new " + thingClass + "('prototype-" + thingClass + "'); thisThing.build();")
+      var buildFunction = new Function("let thisThing = new " + thingClass + "({key : 'prototype', content : {}}); thisThing.build();")
       buildFunction();
     }
 
