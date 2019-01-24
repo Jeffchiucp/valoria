@@ -13,13 +13,15 @@ window.Thing = class {
     .then((ideaRes) => {
       if(!ideaRes.data.err){
         //create a new thing of that kind
+        console.log(this.content);
         axios.post('/dimension/' + thisDimensionKey + '/thing/new', {
-          kind : this.kind
+          kind : this.kind,
+          content : this.content
         }).then((thingRes) => {
           if(!thingRes.data.err){
             this.key = thingRes.data.key;
             this.kind = thingRes.data.kind;
-            this.content = thingRes.data.content;
+            this.content = JSON.parse(thingRes.data.content);
             this.creator = thingRes.data.creator;
             this.dimension = thingRes.data.dimension;
             cb(this);

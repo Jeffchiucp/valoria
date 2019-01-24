@@ -84,8 +84,8 @@ window.New_dimension = class {
           if(!res.data.err){
             $('#' + thingKey).remove();
             var newDoor = new Thing("dimension_door");
+            newDoor.content = {dimKey : newDimensionKey}
             newDoor.create((newDoor) => {
-              newDoor.content = {dimKey : newDimensionKey}
               newDoor.build();
             });
           }

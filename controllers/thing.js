@@ -11,7 +11,7 @@ module.exports = (app) => {
       }else{
         let newThing = new Thing();
         newThing.kind = req.body.kind;
-        newThing.content = req.body.content;
+        newThing.content = JSON.stringify(req.body.content);
         newThing.key = req.body.kind + dimension.thingCount;
         newThing.creator = req.user.username;
         newThing.dimension = dimension.key;
