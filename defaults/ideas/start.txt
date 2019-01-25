@@ -25,16 +25,20 @@ $(thisDimension).css({
   justifyContent : "center",
   alignItems : "center",
   zIndex : 0,
-  background : "url('https://i.imgur.com/TbwEvfU.png')",
   backgroundColor : "#000000"
 })
 $('body').append(thisDimension);
+
+$(thisDimension).focus();
 
 window.ideas = {};
 
 //Load Dimension Data
 axios.get('/dimension/' + thisDimensionKey).then((dimensionRes) => {
   let dimension = dimensionRes.data;
+  $(thisDimension).css({
+    background : "url('" + dimension.background + "')",
+  })
   //Load the use idea
   axios.get('/dimension/' + thisDimensionKey + "/idea/use").then((useRes) => {
     new Function(useRes.data.content)();

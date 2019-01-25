@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 const DimensionSchema = new Schema({
   key : String,
   creator : {type : String, default : 'James'},
+  background : {type : String, default : '../defaults/valoria-bg.gif'},
   ideas : Array,
   things : Array,
   thingCount : {default : 0, type : Number},

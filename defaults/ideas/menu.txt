@@ -1,4 +1,4 @@
-window.Main = class {
+window.Menu = class {
 
   constructor(thingKey){
     this.thingKey = thingKey;
@@ -7,9 +7,9 @@ window.Main = class {
   build(){
 
     //Create Main Element
-    let main = document.createElement('div');
-    main.classList.add('main');
-    $(main).css({
+    let menu = document.createElement('div');
+    menu.classList.add('menu');
+    $(menu).css({
       width : "100%",
       height : "100%",
       display : "none",
@@ -17,19 +17,19 @@ window.Main = class {
       backgroundColor : "#5fa87e",
       zIndex : "100000000"
     })
-    $(thisDimension).append(main);
+    $(thisDimension).append(menu);
 
-    let mainIsOpen = false;
+    let menuIsOpen = false;
 
     //Toggle with ESC
     thisDimension.onkeyup = function(e){
       if(e.keyCode == 27){
-        if(mainIsOpen){
-          $(main).css("display", "none");
-          mainIsOpen = false;
+        if(menuIsOpen){
+          $(menu).css("display", "none");
+          menuIsOpen = false;
         }else{
-          $(main).css("display", "flex");
-          mainIsOpen = true;
+          $(menu).css("display", "flex");
+          menuIsOpen = true;
         }
       }
     }

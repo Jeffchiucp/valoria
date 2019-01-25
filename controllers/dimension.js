@@ -2,16 +2,25 @@ const Dimension = require('../models/dimension');
 const Idea = require('../models/idea');
 const Thing = require('../models/thing');
 
-let defaultIdeas = require('../defaults/receiveDefaults');
-let defaultThings = ['code', 'terminal', 'main'];
+let Defaults = require('../defaults/receiveDefaults');
+let defaultIdeas = Defaults.defaults;
+let defaultThings = ['code', 'terminal', 'menu'];
+let mainIdeas = Defaults.mainIdeas;
+let mainThings = ['dev'];
+let devIdeas = Defaults.devIdeas;
+let devThings = ['main'];
 
-function createDefaultDimension(key, creator, cb){
+function createDefaultDimension(key, creator, background, cb){
   let newDim = new Dimension();
   newDim.key = key;
   newDim.creator = creator;
   newDim.editors.push(creator);
   newDim.content = defaultIdeas.start;
   newDim.isPrivate = true;
+  if(background){
+    newDim.background = background;
+  }
+
   for(idea in defaultIdeas){
     newDim.ideas.push(idea);
     newDim.defaultIdeas.push(idea);
@@ -35,14 +44,69 @@ function createDefaultDimension(key, creator, cb){
     newThing.save();
   })
   newDim.save().then((newDim) => {
-    cb(newDim);
+    if(cb){
+      cb(newDim);
+    }
   });
 }
 
 //Creating the first dimension known as Valoria
 Dimension.findOne({key : "valoria"}).then((dimension) => {
   if(!dimension){
-    createDefaultDimension('valoria', 'james');
+
+    //Create Valoria Main
+    createDefaultDimension('valoria', 'james', '../defaults/valoria-bg.gif', (main) => {
+      for(idea in mainIdeas){
+        main.ideas.push(idea);
+        main.defaultIdeas.push(idea);
+        let newIdea = new Idea();
+        newIdea.kind = idea;
+        newIdea.creator = 'james';
+        newIdea.editors.push('james');
+        newIdea.content = mainIdeas[idea];
+        newIdea.isPrivate = true;
+        newIdea.dimension = 'valoria';
+        newIdea.save();
+      }
+      mainThings.forEach((idea) => {
+        main.things.push(idea + main.thingCount);
+        let newThing = new Thing();
+        newThing.kind = idea;
+        newThing.creator = 'james';
+        newThing.dimension = 'valoria';
+        newThing.key = idea + main.thingCount;
+        main.thingCount += 1;
+        newThing.save();
+      })
+      main.save();
+    });
+
+    //Create Valoria Dev
+    createDefaultDimension('valoria-dev', 'james', 'https://i.imgur.com/TbwEvfU.png', (dev) => {
+      for(idea in devIdeas){
+        dev.ideas.push(idea);
+        dev.defaultIdeas.push(idea);
+        let newIdea = new Idea();
+        newIdea.kind = idea;
+        newIdea.creator = 'james';
+        newIdea.editors.push('james');
+        newIdea.content = devIdeas[idea];
+        newIdea.isPrivate = true;
+        newIdea.dimension = 'valoria-dev';
+        newIdea.save();
+      }
+      devThings.forEach((idea) => {
+        dev.things.push(idea + dev.thingCount);
+        let newThing = new Thing();
+        newThing.kind = idea;
+        newThing.creator = 'james';
+        newThing.dimension = 'valoria-dev';
+        newThing.key = idea + dev.thingCount;
+        dev.thingCount += 1;
+        newThing.save();
+      })
+      dev.save();
+    });
   }
 })
 
