@@ -41,19 +41,63 @@ window.Code = class {
     })
     $('#' + this.key).append(code);
 
-    //Create Idea Input Container
-    let ideaInputContainer = document.createElement('div');
-    ideaInputContainer.classList.add("ideaInputContainer");
-    $(ideaInputContainer).css({
+    //Create Code Input Controls
+    //Create Dimension Input Container
+    let codeInputsContainer = document.createElement('div');
+    codeInputsContainer.classList.add("codeInputsContainer");
+    $(codeInputsContainer).css({
       height : "10%",
       backgroundColor : "#ffffff",
       width : "100%",
       borderBottom : "2px solid #000000",
       display : "flex",
+      flexDirection : "row",
+      justifyContent : "center",
+      alignItems : "center",
+    })
+    $(code).append(codeInputsContainer)
+
+    //Create Dimension Input Container
+    let dimInputContainer = document.createElement('div');
+    dimInputContainer.classList.add("dimInputContainer");
+    $(dimInputContainer).css({
+      height : "100%",
+      backgroundColor : "#ffffff",
+      width : "50%",
+      display : "flex",
       justifyContent : "center",
       alignItems : "center"
     })
-    $(code).append(ideaInputContainer)
+    $(codeInputsContainer).append(dimInputContainer)
+
+    //Create Idea Input Text
+    let dimInput = document.createElement('div');
+    dimInput.classList.add('dimInput');
+    dimInput.contentEditable = true;
+    $(dimInput).css({
+      color : "black",
+      fontSize : "20px",
+      fontWeight : "bold",
+      textAlign : "center",
+      outline : "none"
+    })
+    dimInput.textContent = thingContent.dimKey || thisDimensionKey;
+    let dimKeyInput = dimInput.textContent.toLowerCase();
+    $(dimInputContainer).append(dimInput)
+
+    //Create Idea Input Container
+    let ideaInputContainer = document.createElement('div');
+    ideaInputContainer.classList.add("ideaInputContainer");
+    $(ideaInputContainer).css({
+      height : "100%",
+      backgroundColor : "#ffffff",
+      width : "50%",
+      borderLeft : "2px solid #000000",
+      display : "flex",
+      justifyContent : "center",
+      alignItems : "center"
+    })
+    $(codeInputsContainer).append(ideaInputContainer)
 
     //Create Idea Input Text
     let ideaInput = document.createElement('div');

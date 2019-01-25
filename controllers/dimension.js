@@ -4,11 +4,11 @@ const Thing = require('../models/thing');
 
 let Defaults = require('../defaults/receiveDefaults');
 let defaultIdeas = Defaults.defaults;
-let defaultThings = ['code', 'terminal', 'menu'];
+let defaultThings = ['menu'];
 let mainIdeas = Defaults.mainIdeas;
 let mainThings = ['dev'];
 let devIdeas = Defaults.devIdeas;
-let devThings = ['main'];
+let devThings = ['code', 'terminal', 'main'];
 
 function createDefaultDimension(key, creator, background, cb){
   let newDim = new Dimension();
