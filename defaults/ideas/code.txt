@@ -12,6 +12,8 @@ window.Code = class {
       editors : [thisUsername]
     }
 
+    let thingKey = this.key;
+
 
     let squareInstance = new Square(this);
     squareInstance.build();
@@ -42,7 +44,6 @@ window.Code = class {
     $('#' + this.key).append(code);
 
     //Create Code Input Controls
-    //Create Dimension Input Container
     let codeInputsContainer = document.createElement('div');
     codeInputsContainer.classList.add("codeInputsContainer");
     $(codeInputsContainer).css({
@@ -239,7 +240,6 @@ window.Code = class {
     runCodeBtn.onclick = function(){
       let thisCode = editor.getValue();
       this.key = 'prototype-' + thingContent.ideaName;
-      eval(thisCode);
       let thingClass = thingContent.ideaName[0].toUpperCase() + thingContent.ideaName.substr(1, thingContent.ideaName.length);
       var buildFunction = new Function("let thisThing = new " + thingClass + "({key : 'prototype', content : {}}); thisThing.build();")
       buildFunction();
@@ -294,53 +294,68 @@ window.Code = class {
       }
     });
 
+    function changeIdea(dimKey, ideaName){
+      axios.get('/dimension/' + dimKey + '/idea/' + ideaName).then((ideaRes) => {
+        if(ideaRes){
+          if(ideaRes.data.err){
+            axios.post('/dimension/' + dimKey + '/idea/new', {
+              content : '//Write code for ' + ideaName,
+              kind : dimKey,
+              isPrivate : false,
+            }).then((res) => {
+              editor.setValue(res.data.content);
+              thingContent.isPrivate = false;
+            })
+          }else{
+            editor.setValue(ideaRes.data.content);
+            thingContent.isPrivate = ideaRes.data.isPrivate;
+          }
+          axios.post('/dimension/' + dimKey + '/thing/' + thingKey + '/save', {
+            content : {
+              ideaName : ideaName,
+              isPrivate : ideaRes.data.isPrivate,
+              editors : ideaRes.data.editors
+            }
+          }).then((thingRes) => {
+            thingContent.ideaName = ideaName;
+            thingContent.isPrivate = ideaRes.data.isPrivate;
+            thingContent.editors = ideaRes.data.editors;
+            if(thingContent.isPrivate){
+              togglePrivacyBtnText.textContent = "Private Idea";
+              $(code).css({
+                boxShadow : "0px 0px 5px 5px #e27f7f"
+              })
+            }else{
+              togglePrivacyBtnText.textContent = "Public Idea";
+              $(code).css({
+                boxShadow : "0px 0px 5px 5px #a9ff93"
+              })
+            }
+            if(thingContent.isPrivate && !thingContent.editors.includes(thisUsername)){
+              editor.setReadOnly(true);
+            }else{
+              editor.setReadOnly(false);
+            }
+          });
+        }
+      })
+    }
+
     //Change Idea on Idea Input Blur
     $(ideaInput).on('blur', (e) => {
       kindOfIdea = ideaInput.textContent.toLowerCase();
-      if(kindOfIdea.length > 0 ){
-        axios.get('/dimension/' + thisDimensionKey + '/idea/' + kindOfIdea).then((ideaRes) => {
-          if(ideaRes){
-            if(ideaRes.data.err){
-              axios.post('/dimension/' + thisDimensionKey + '/idea/new', {
-                content : '//Write code for ' + kindOfIdea,
-                kind : kindOfIdea,
-                isPrivate : false,
-              }).then((res) => {
-                editor.setValue(res.data.content);
-                thingContent.isPrivate = false;
-              })
-            }else{
-              editor.setValue(ideaRes.data.content);
-              thingContent.isPrivate = ideaRes.data.isPrivate;
-            }
-            axios.post('/dimension/' + thisDimensionKey + '/thing/' + this.key + '/save', {
-              content : {
-                ideaName : kindOfIdea,
-                isPrivate : ideaRes.data.isPrivate,
-                editors : ideaRes.data.editors
-              }
-            }).then((thingRes) => {
-              thingContent.ideaName = kindOfIdea,
-              thingContent.isPrivate = ideaRes.data.isPrivate
-              if(thingContent.isPrivate){
-                togglePrivacyBtnText.textContent = "Private Idea";
-                $(code).css({
-                  boxShadow : "0px 0px 5px 5px #e27f7f"
-                })
-              }else{
-                togglePrivacyBtnText.textContent = "Public Idea";
-                $(code).css({
-                  boxShadow : "0px 0px 5px 5px #a9ff93"
-                })
-              }
-              if(thingContent.isPrivate && !thingContent.editors.includes(thisUsername)){
-                editor.setReadOnly(true);
-              }else{
-                editor.setReadOnly(false);
-              }
-            });
-          }
-        })
+      let dimKey = dimInput.textContent.toLowerCase();
+      if(kindOfIdea.length > 0 && dimKey.length > 0){
+        changeIdea(dimKey, kindOfIdea);
+      }
+    })
+
+    //Change Idea on Dimension Input Blur
+    $(dimInput).on('blur', (e) => {
+      kindOfIdea = ideaInput.textContent.toLowerCase();
+      let dimKey = dimInput.textContent.toLowerCase();
+      if(kindOfIdea.length > 0 && dimKey.length > 0){
+        changeIdea(dimKey, kindOfIdea);
       }
     })
 
